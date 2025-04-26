@@ -73,10 +73,14 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 app.use('/vendor', express.static(path.join(__dirname, 'vendor')));
 app.use(session({
   store: sessionStore,
-  secret: process.env.SESSION_SECRET || 'fallback-secret-should-be-set-in-env',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: process.env.NODE_ENV === 'production', maxAge: 24 * 60 * 60 * 1000 }
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'lax' : 'strict',
+    maxAge: 24 * 60 * 60 * 1000
+  }
 }));
 
 app.set('view engine', 'ejs');
