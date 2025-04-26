@@ -43,6 +43,8 @@ const upload = multer({ storage: storage });
 
 const sessionStore = new connectPgSimple({ pool: pool, tableName: 'user_sessions' });
 
+app.set('trust proxy', 1);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
