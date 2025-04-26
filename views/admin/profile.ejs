@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <title>Admin Profile - WinKey Gaming</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="/assets/css/fontawesome.css">
+  <link rel="stylesheet" href="/assets/css/winkey.css">
+  <link rel="stylesheet" href="/assets/css/owl.css">
+  <link rel="stylesheet" href="/assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+  
+  <style>
+    .profile-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .profile-header h2 {
+      color: #0071f8;
+      margin-bottom: 10px;
+    }
+    
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      background-color: #0071f8;
+      border-radius: 50%;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      font-weight: bold;
+      margin-right: 20px;
+    }
+    
+    .profile-details {
+      flex: 1;
+    }
+    
+    .profile-role {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: #0071f8;
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    
+    .nav-pills .nav-link.active {
+      background-color: #0071f8;
+    }
+    
+    .nav-pills .nav-link {
+      color: #333;
+      border-radius: 10px;
+      margin-right: 5px;
+    }
+    
+    .tab-content {
+      margin-top: 20px;
+    }
+    
+    .admin-stats-card {
+      background-color: #f8f9fa;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #0071f8;
+    }
+    
+    .admin-stats-value {
+      font-size: 28px;
+      font-weight: bold;
+      color: #0071f8;
+    }
+    
+    .admin-stats-label {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .purchase-item {
+      border-bottom: 1px solid #eee;
+      padding: 15px 0;
+    }
+    
+    .purchase-item:last-child {
+      border-bottom: none;
+    }
+    
+    .purchase-date {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .purchase-price {
+      font-weight: bold;
+      color: #0071f8;
+    }
+    
+    .empty-message {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    }
+    
+    .btn-logout {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    
+    .btn-logout:hover {
+      background-color: #d32f2f;
+      color: white;
+    }
+    
+    .admin-action-btn {
+      background-color: #0071f8;
+      color: white;
+      border: none;
+      padding: 5px 15px;
+      border-radius: 5px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+    }
+    
+    .admin-action-btn:hover {
+      background-color: #005bc6;
+      color: white;
+    }
+    
+    .dropdown-menu.show {
+      display: block !important;
+    }
+    
+    .dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      z-index: 1000;
+      display: none;
+      float: left;
+      min-width: 10rem;
+      padding: .5rem 0;
+      margin: .125rem 0 0;
+      font-size: 1rem;
+      color: #212529;
+      text-align: left;
+      list-style: none;
+      background-color: #fff;
+      background-clip: padding-box;
+      border: 1px solid rgba(0,0,0,.15);
+      border-radius: .25rem;
+    }
+    
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      padding: .25rem 1.5rem;
+      clear: both;
+      font-weight: 400;
+      color: #212529;
+      text-align: inherit;
+      white-space: nowrap;
+      background-color: transparent;
+      border: 0;
+    }
+    
+    .dropdown-item:hover, .dropdown-item:focus {
+      color: #16181b;
+      text-decoration: none;
+      background-color: #f8f9fa;
+    }
+  </style>
+</head>
+
+<body>
+  <%- include('../partials/header') %>
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3>Admin Profile</h3>
+          <span class="breadcrumb"><a href="/admin">Admin Dashboard</a> > Admin Profile</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="margin-top: 60px; margin-bottom: 60px;">
+    <div class="profile-container">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <%= user.username.charAt(0).toUpperCase() %>
+        </div>
+        <div class="profile-details">
+          <h2><%= user.username %></h2>
+          <p><%= user.email %></p>
+          <span class="profile-role"><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span>
+          <div class="mt-2">
+            <a href="/admin" class="btn admin-action-btn">Dashboard</a>
+            <a href="/profile" class="btn admin-action-btn">User View</a>
+            <a href="/logout" class="btn btn-logout">Logout</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="admin-stats-card">
+            <div class="admin-stats-value"><%= totalProducts || 0 %></div>
+            <div class="admin-stats-label">Total Products</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="admin-stats-card">
+            <div class="admin-stats-value"><%= totalUsers || 0 %></div>
+            <div class="admin-stats-label">Total Users</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="admin-stats-card">
+            <div class="admin-stats-value"><%= totalOrders || 0 %></div>
+            <div class="admin-stats-label">Total Orders</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="admin-stats-card">
+            <div class="admin-stats-value">$<%= totalRevenue || 0 %></div>
+            <div class="admin-stats-label">Total Revenue</div>
+          </div>
+        </div>
+      </div>
+      
+      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <a class="nav-link active" id="pills-activity-tab" data-toggle="pill" href="#pills-activity" role="tab" aria-controls="pills-activity" aria-selected="true">Recent Activity</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="pills-actions-tab" data-toggle="pill" href="#pills-actions" role="tab" aria-controls="pills-actions" aria-selected="false">Quick Actions</a>
+        </li>
+      </ul>
+      
+      <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-activity" role="tabpanel" aria-labelledby="pills-activity-tab">
+          <% if (adminActivity && adminActivity.length > 0) { %>
+            <div class="list-group">
+              <% adminActivity.forEach(activity => { %>
+                <div class="purchase-item">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><%= activity.action %></h5>
+                    <span class="purchase-date"><%= new Date(activity.timestamp).toLocaleDateString() %></span>
+                  </div>
+                  <p class="mb-1"><%= activity.details %></p>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="empty-message">
+              <p>No recent admin activity.</p>
+            </div>
+          <% } %>
+        </div>
+        
+        <div class="tab-pane fade" id="pills-actions" role="tabpanel" aria-labelledby="pills-actions-tab">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Add New Product</h5>
+                  <p class="card-text">Create a new product listing in the store.</p>
+                  <a href="/admin/products/new" class="btn admin-action-btn">Add Product</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Manage Users</h5>
+                  <p class="card-text">View and manage user accounts.</p>
+                  <a href="/admin/users" class="btn admin-action-btn">Manage Users</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">View Orders</h5>
+                  <p class="card-text">Check recent orders and process them.</p>
+                  <a href="/admin/orders" class="btn admin-action-btn">View Orders</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Site Settings</h5>
+                  <p class="card-text">Configure website settings and options.</p>
+                  <a href="/admin/settings" class="btn admin-action-btn">Site Settings</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %> 
+
+  <!-- Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/assets/js/isotope.min.js"></script>
+  <script src="/assets/js/owl-carousel.js"></script>
+  <script src="/assets/js/counter.js"></script>
+  <script src="/assets/js/custom.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      // Инициализация dropdown меню
+      $('[data-toggle="dropdown"]').dropdown();
+      
+      // Добавляем обработчик событий для dropdown
+      $(document).on('click', '.dropdown-toggle', function(e) {
+        e.preventDefault(); // Предотвращаем действие по умолчанию
+        e.stopPropagation();
+        
+        var dropdownMenu = $(this).siblings('.dropdown-menu');
+        if(dropdownMenu.hasClass('show')) {
+          dropdownMenu.removeClass('show');
+        } else {
+          $('.dropdown-menu').removeClass('show');
+          dropdownMenu.addClass('show');
+        }
+      });
+      
+      // Закрываем dropdown при клике вне него
+      $(document).on('click', function(e) {
+        if(!$(e.target).closest('.dropdown').length) {
+          $('.dropdown-menu').removeClass('show');
+        }
+      });
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,56 @@
+/* Styles extracted from views/checkout.ejs */
+
+.checkout-container {
+  margin-top: 120px;
+  margin-bottom: 60px;
+}
+
+.checkout-product-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+.checkout-summary {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.payment-methods {
+  margin-bottom: 1rem;
+}
+
+.payment-method-option {
+  display: flex;
+  align-items: center;
+  padding: 18px 24px;
+  border: 2px solid #ee626b;
+  border-radius: 12px;
+  background: #fff6f7;
+  margin-bottom: 0.5rem;
+  transition: border 0.2s;
+  min-height: 60px;
+  max-height: 80px;
+}
+
+.payment-method-option.selected {
+  border-color: #ee626b;
+  background: #fff6f7;
+}
+
+.payment-method-option img {
+  height: 38px;
+  width: auto;
+  margin-right: 18px;
+  object-fit: contain;
+  display: block;
+}
+
+.payment-method-option span {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #222;
+  margin-left: 10px;
+  white-space: pre-line;
+} 

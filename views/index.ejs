@@ -1,0 +1,133 @@
+<%- include('partials/header') %>
+
+  <div class="main-banner">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 align-self-center">
+          <div class="caption header-text">
+            <h6>Welcome to Winkey</h6>
+            <h2>BEST PRODUCTS SITE EVER!</h2>
+            <div class="search-input">
+              <form id="search" action="/shop" method="GET">
+                <input type="text" placeholder="Type Something" id='searchText' name="searchKeyword" />
+                <button type="submit">Search Now</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="section trending">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="section-heading">
+            <h6>Trending</h6>
+            <h2>Trending Products</h2>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="main-button">
+            <a href="/shop">View All</a>
+          </div>
+        </div>
+        <% trendingProducts.forEach(product => { %>
+        <div class="col-lg-3 col-md-6">
+          <div class="item">
+            <div class="thumb">
+              <a href="/product-details?id=<%= product.id %>"><img src="<%= product.image_url || 'assets/images/trending-01.jpg' %>" alt="<%= product.name %>"></a>
+              <span class="price"
+                data-price-usd="<%= product.price_usd %>"
+                data-price-rub="<%= product.price_rub %>"
+                data-discounted-usd="<%= product.discounted_price_usd || '' %>"
+                data-discounted-rub="<%= product.discounted_price_rub || '' %>">
+                <% if (settings.currency === 'USD') { %>
+                  <% if (product.discounted_price_usd) { %>
+                    <em>$<%= parseFloat(product.price_usd).toFixed(2) %></em> $<%= parseFloat(product.discounted_price_usd).toFixed(2) %>
+                  <% } else { %>
+                    $<%= parseFloat(product.price_usd).toFixed(2) %>
+                  <% } %>
+                <% } else { %>
+                  <% if (product.discounted_price_rub) { %>
+                    <em><%= parseFloat(product.price_rub).toFixed(2) %> ₽</em> <%= parseFloat(product.discounted_price_rub).toFixed(2) %> ₽
+                  <% } else { %>
+                    <%= parseFloat(product.price_rub).toFixed(2) %> ₽
+                  <% } %>
+                <% } %>
+              </span>
+            </div>
+            <div class="down-content">
+              <span class="category"><%= product.category || 'Electronics' %></span>
+              <h4
+                data-name-en="<%= product.name %>"
+                data-name-ru="<%= product.name_ru || product.name %>">
+                <% if (settings.language === 'ru' && product.name_ru) { %>
+                  <%= product.name_ru %>
+                <% } else { %>
+                  <%= product.name %>
+                <% } %>
+              </h4>
+              <a href="/product-details?id=<%= product.id %>"><i class="fa fa-shopping-bag"></i></a>
+            </div>
+          </div>
+        </div>
+        <% }); %>
+        <% if (trendingProducts.length === 0) { %>
+          <div class="col-12">
+            <div class="alert alert-info">No trending products available at the moment.</div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <div class="section most-played">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="section-heading">
+            <h6>TOP PRODUCTS</h6>
+            <h2>Most Popular</h2>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="main-button">
+            <a href="/shop">View All</a>
+          </div>
+        </div>
+        <% mostPlayedProducts.forEach(product => { %>
+        <div class="col-lg-2 col-md-6 col-sm-6">
+          <div class="item">
+            <div class="thumb">
+              <a href="/product-details?id=<%= product.id %>"><img src="<%= product.image_url || 'assets/images/top-product-01.jpg' %>" alt="<%= product.name %>"></a>
+            </div>
+            <div class="down-content">
+              <span class="category"><%= product.category || 'Electronics' %></span>
+              <h4
+                data-name-en="<%= product.name %>"
+                data-name-ru="<%= product.name_ru || product.name %>">
+                <% if (settings.language === 'ru' && product.name_ru) { %>
+                  <%= product.name_ru %>
+                <% } else { %>
+                  <%= product.name %>
+                <% } %>
+              </h4>
+              <a href="/product-details?id=<%= product.id %>">Explore</a>
+            </div>
+          </div>
+        </div>
+        <% }); %>
+        <% if (mostPlayedProducts.length === 0) { %>
+          <div class="col-12">
+            <div class="alert alert-info">No featured products available at the moment.</div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+<%- include('partials/footer') %> 

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <title>Your Cart - WinKey Gaming</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="/assets/css/fontawesome.css">
+  <link rel="stylesheet" href="/assets/css/winkey.css">
+  <link rel="stylesheet" href="/assets/css/owl.css">
+  <link rel="stylesheet" href="/assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+  <link rel="stylesheet" href="/assets/css/cart.css">
+</head>
+
+<body>
+  <%- include('partials/header') %>
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3>Your Shopping Cart</h3>
+          <span class="breadcrumb"><a href="/">Home</a> > Cart</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="cart-main-container">
+    <div class="cart-container">
+      <h2 class="mb-4">Корзина</h2>
+      
+      <!-- Пустая корзина -->
+      <div class="cart-empty text-center py-5">
+        <i class="fa fa-shopping-cart fa-4x mb-3 text-muted"></i>
+        <h4>Ваша корзина пуста</h4>
+        <p class="text-muted">Добавьте товары в корзину для оформления заказа</p>
+        <a href="/" class="btn btn-primary mt-3">Перейти к покупкам</a>
+      </div>
+      
+      <!-- Содержимое корзины -->
+      <div class="cart-items-container">
+        <div class="row font-weight-bold mb-3">
+          <div class="col-md-2">Изображение</div>
+          <div class="col-md-4">Товар</div>
+          <div class="col-md-2">Количество</div>
+          <div class="col-md-2">Сумма</div>
+          <div class="col-md-2">Действия</div>
+        </div>
+        
+        <div id="cartItems">
+          <!-- Здесь будут отображаться товары из корзины -->
+        </div>
+      </div>
+      
+      <!-- Итого и кнопка оформления заказа -->
+      <div class="cart-total mt-4">
+        <div class="row">
+          <div class="col-md-6 offset-md-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Итого:</h5>
+                <div class="d-flex justify-content-between mb-2">
+                  <span>Всего товаров:</span>
+                  <span class="cart-total-items">0</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                  <span>Итоговая сумма:</span>
+                  <span class="cart-total-price">$0.00</span>
+                </div>
+                
+                <% if (user) { %>
+                  <a href="/checkout" class="btn btn-primary btn-block checkout-btn" data-is-logged-in="true">Оформить заказ</a>
+                <% } else { %>
+                  <a href="/checkout" class="btn btn-primary btn-block checkout-btn" data-is-logged-in="false">Оформить заказ</a>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('partials/footer') %>
+
+  <!-- Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/assets/js/isotope.min.js"></script>
+  <script src="/assets/js/owl-carousel.js"></script>
+  <script src="/assets/js/counter.js"></script>
+  <script src="/assets/js/custom.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      let currency = 'USD';
+      let language = 'en';
+      let cartItems = [];
+      
+      // Инициализация dropdown меню
+      function setupDropdown() {
+        var dropdownToggle = document.querySelector('#userDropdown');
+        var dropdownMenu = document.querySelector('.dropdown-menu');
+        
+        if (dropdownToggle && dropdownMenu) {
+          // Обработчик клика на кнопку дропдауна
+          dropdownToggle.addEventListener('click', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (dropdownMenu.classList.contains('show')) {
+              dropdownMenu.classList.remove('show');
+            } else {
+              dropdownMenu.classList.add('show');
+            }
+          });
+          
+          // Закрываем меню при клике вне него
+          document.addEventListener('click', function(event) {
+            if (!dropdownToggle.contains(event.target) && !dropdownMenu.contains(event.target)) {
+              dropdownMenu.classList.remove('show');
+            }
+          });
+          
+          // Добавляем стили для видимости меню
+          dropdownMenu.style.display = 'none';
+          dropdownMenu.classList.add('dropdown-menu');
+        }
+      }
+      
+      // Функция для загрузки настроек пользователя
+      function loadUserSettings() {
+        fetch('/api/user/settings')
+          .then(response => response.json())
+          .then(data => {
+            currency = data.currency || 'USD';
+            language = data.language || 'en';
+            
+            // Отмечаем активную валюту
+            if (currency === 'USD') {
+              $('#currency-usd').addClass('active').removeClass('btn-outline-primary').addClass('btn-primary');
+            } else {
+              $('#currency-rub').addClass('active').removeClass('btn-outline-primary').addClass('btn-primary');
+            }
+            
+            // Отмечаем активный язык
+            if (language === 'en') {
+              $('#lang-en').addClass('active');
+            } else {
+              $('#lang-ru').addClass('active');
+            }
+            
+            // Загружаем корзину
+            loadCart();
+          })
+          .catch(err => {
+            console.error('Error loading user settings:', err);
+            loadCart();
+          });
+      }
+      
+      // Функция для сохранения настроек пользователя
+      function saveUserSettings() {
+        fetch('/api/user/settings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            language,
+            currency
+          })
+        })
+        .then(response => response.json())
+        .catch(err => console.error('Error saving user settings:', err));
+      }
+      
+      // Функция для загрузки содержимого корзины
+      function loadCart() {
+        $.ajax({
+          url: '/api/cart',
+          method: 'GET',
+          success: function(response) {
+            const cartContainer = $('#cartItems');
+            cartContainer.empty();
+            
+            // Extract cart items from the response
+            const data = response.cart || [];
+            
+            if (data.length === 0) {
+              $('.cart-empty').removeClass('d-none');
+              $('.cart-items-container, .cart-total').addClass('d-none');
+            } else {
+              $('.cart-empty').addClass('d-none');
+              $('.cart-items-container, .cart-total').removeClass('d-none');
+              
+              data.forEach(function(item) {
+                // Use the right price based on currency
+                const regularPrice = currency === 'USD' ? item.price_usd : item.price_rub;
+                const discountedPrice = currency === 'USD' ? item.discounted_price_usd : item.discounted_price_rub;
+                const price = discountedPrice || regularPrice;
+                const itemTotal = price * item.quantity;
+                const currencySymbol = currency === 'USD' ? '$' : '₽';
+                
+                const cartItem = `
+                  <div class="cart-item" data-id="${item.product_id}"
+                    data-price-usd="${item.price_usd}" data-price-rub="${item.price_rub}"
+                    data-discounted-usd="${item.discounted_price_usd || ''}" data-discounted-rub="${item.discounted_price_rub || ''}">
+                    <div class="row align-items-center">
+                      <div class="col-md-2">
+                        <img src="${item.image_url || 'https://graph.digiseller.ru/img.ashx?id_d=' + item.product_id + '&maxlength=150'}" alt="${item.name}" class="img-fluid">
+                      </div>
+                      <div class="col-md-4">
+                        <h5 data-name-en="${item.name}" data-name-ru="${item.name_ru || item.name}">${language === 'ru' && item.name_ru ? item.name_ru : item.name}</h5>
+                        <p class="text-muted cart-price">
+                          ${discountedPrice ? 
+                            `<strike>${currencySymbol}${regularPrice}</strike> ${currencySymbol}${discountedPrice}` : 
+                            `${currencySymbol}${regularPrice}`
+                          }
+                        </p>
+                      </div>
+                      <div class="col-md-2">
+                        <input type="number" class="form-control item-quantity" data-product-id="${item.product_id}" value="${item.quantity}" min="1">
+                      </div>
+                      <div class="col-md-2">
+                        <span class="item-total">${currencySymbol}${itemTotal.toFixed(2)}</span>
+                      </div>
+                      <div class="col-md-2">
+                        <button class="btn btn-sm btn-danger remove-from-cart" data-product-id="${item.product_id}">${language === 'ru' ? 'Удалить' : 'Remove'}</button>
+                      </div>
+                    </div>
+                  </div>
+                `;
+                
+                cartContainer.append(cartItem);
+              });
+              
+              // Set up event handlers for the newly added elements
+              setupCartItemHandlers();
+              
+              // Обновляем цены и названия динамически
+              updateCartPricesAndNames();
+              
+              // Обновляем итоги
+              updateCartTotals();
+            }
+          },
+          error: function(err) {
+            console.error('Error loading cart:', err);
+          }
+        });
+      }
+      
+      // Функция для динамического обновления цен и названий в корзине
+      function updateCartPricesAndNames() {
+        const lang = localStorage.getItem('language') || 'en';
+        const curr = lang === 'ru' ? 'RUB' : 'USD';
+        const symbol = curr === 'USD' ? '$' : '₽';
+        $('.cart-item').each(function() {
+          const $item = $(this);
+          // Название
+          const name = $item.find('h5').data(`name-${lang}`);
+          $item.find('h5').text(name);
+          // Цена
+          const price = curr === 'USD' ? $item.data('price-usd') : $item.data('price-rub');
+          const discounted = curr === 'USD' ? $item.data('discounted-usd') : $item.data('discounted-rub');
+          let priceHtml = '';
+          if (discounted && discounted !== '' && discounted !== 'null') {
+            priceHtml = `<strike>${symbol}${price}</strike> ${symbol}${discounted}`;
+          } else {
+            priceHtml = `${symbol}${price}`;
+          }
+          $item.find('.cart-price').html(priceHtml);
+          // Итоговая цена за количество
+          const quantity = parseInt($item.find('.item-quantity').val()) || 1;
+          const itemTotal = (discounted && discounted !== '' && discounted !== 'null' ? discounted : price) * quantity;
+          $item.find('.item-total').text(symbol + Number(itemTotal).toFixed(2));
+        });
+      }
+      
+      // Setup event handlers for cart items
+      function setupCartItemHandlers() {
+        // Handle quantity change
+        $('.item-quantity').on('change', function() {
+          const productId = $(this).data('product-id');
+          const quantity = parseInt($(this).val()) || 1;
+          updateCartItemQuantity(productId, quantity);
+        });
+        
+        // Handle remove button
+        $('.remove-from-cart').on('click', function() {
+          const productId = $(this).data('product-id');
+          removeCartItem(productId);
+        });
+      }
+      
+      // Функция для обновления количества товара
+      function updateCartItemQuantity(itemId, quantity) {
+        $.ajax({
+          url: `/api/cart/${itemId}`,
+          method: 'PUT',
+          data: JSON.stringify({ quantity: quantity }),
+          contentType: 'application/json',
+          success: function(data) {
+            // Обновляем общую сумму товара
+            const itemElement = $(`.cart-item[data-id="${itemId}"]`);
+            const price = parseFloat(itemElement.data('price'));
+            const itemTotal = price * quantity;
+            const currencySymbol = currency === 'USD' ? '$' : '₽';
+            
+            itemElement.find('.item-total').text(currencySymbol + itemTotal.toFixed(2));
+            
+            // Обновляем итоги
+            updateCartTotals();
+          },
+          error: function(err) {
+            console.error('Error updating quantity:', err);
+          }
+        });
+      }
+      
+      // Функция для удаления товара из корзины
+      function removeCartItem(itemId) {
+        $.ajax({
+          url: `/api/cart/${itemId}`,
+          method: 'DELETE',
+          success: function(data) {
+            $(`.cart-item[data-id="${itemId}"]`).remove();
+            
+            // Обновляем итоги
+            updateCartTotals();
+          },
+          error: function(err) {
+            console.error('Error removing item:', err);
+          }
+        });
+      }
+      
+      // Функция для очистки корзины
+      function clearCart() {
+        fetch('/api/cart', {
+          method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            // Clear displayed cart
+            $('#cartItems').empty();
+            updateCartTotals();
+          }
+        })
+        .catch(err => console.error('Error clearing cart:', err));
+      }
+      
+      // Функция для оформления заказа
+      function checkout() {
+        if ($('.cart-item').length === 0) {
+          alert(language === 'ru' ? 'Ваша корзина пуста' : 'Your cart is empty');
+          return;
+        }
+        
+        // Redirect to checkout page
+        window.location.href = '/checkout';
+      }
+      
+      // Обработчики событий
+      $('#currency-usd').on('click', function() {
+        currency = 'USD';
+        $(this).addClass('active').removeClass('btn-outline-primary').addClass('btn-primary');
+        $('#currency-rub').removeClass('active').removeClass('btn-primary').addClass('btn-outline-primary');
+        saveUserSettings();
+        updateCartPricesAndNames();
+        updateCartTotals();
+      });
+      
+      $('#currency-rub').on('click', function() {
+        currency = 'RUB';
+        $(this).addClass('active').removeClass('btn-outline-primary').addClass('btn-primary');
+        $('#currency-usd').removeClass('active').removeClass('btn-primary').addClass('btn-outline-primary');
+        saveUserSettings();
+        updateCartPricesAndNames();
+        updateCartTotals();
+      });
+      
+      $('#lang-en').on('click', function() {
+        language = 'en';
+        $(this).addClass('active');
+        $('#lang-ru').removeClass('active');
+        saveUserSettings();
+        updateCartPricesAndNames();
+        updateCartTotals();
+      });
+      
+      $('#lang-ru').on('click', function() {
+        language = 'ru';
+        $(this).addClass('active');
+        $('#lang-en').removeClass('active');
+        saveUserSettings();
+        updateCartPricesAndNames();
+        updateCartTotals();
+      });
+      
+      $('#clear-cart').on('click', function() {
+        if (confirm('Are you sure you want to clear your cart?')) {
+          clearCart();
+        }
+      });
+      
+      $('#checkout').on('click', function() {
+        checkout();
+      });
+      
+      // Инициализация
+      setupDropdown();
+      loadUserSettings();
+      
+      // Ensure header has blue background by adding the background-header class
+      $("header").addClass("background-header");
+      
+      // Функция для обновления итоговой информации о корзине
+      function updateCartTotals() {
+        let subtotal = 0;
+        let totalItems = 0;
+        const lang = localStorage.getItem('language') || 'en';
+        const curr = lang === 'ru' ? 'RUB' : 'USD';
+        const currencySymbol = curr === 'USD' ? '$' : '₽';
+        $('.cart-item').each(function() {
+          const $item = $(this);
+          const price = curr === 'USD'
+            ? (parseFloat($item.data('discounted-usd')) || parseFloat($item.data('price-usd')))
+            : (parseFloat($item.data('discounted-rub')) || parseFloat($item.data('price-rub')));
+          const quantity = parseInt($item.find('.item-quantity').val());
+          subtotal += price * quantity;
+          totalItems += quantity;
+        });
+        // Handle empty cart
+        if ($('.cart-item').length === 0) {
+          $('.cart-empty').removeClass('d-none');
+          $('.cart-items-container, .cart-total').addClass('d-none');
+          return;
+        }
+        // Update the total items count
+        $('.cart-total-items').text(totalItems);
+        // Update the total price
+        $('.cart-total-price').text(`${currencySymbol}${subtotal.toFixed(2)}`);
+      }
+    });
+  </script>
+</body>
+</html> 

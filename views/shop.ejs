@@ -1,0 +1,76 @@
+<%- include('partials/header') %>
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h2>Our Latest Products</h2>
+          <span class="breadcrumb"><a href="#">Home</a> > Our Shop</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section trending">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="section-heading">
+            <h6>Trending</h6>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="main-button">
+            <a href="shop.html">View All</a>
+          </div>
+        </div>
+        <% if (typeof products !== 'undefined' && products.length > 0) { %>
+          <% products.forEach(product => { %>
+            <div class="col-lg-3 col-md-6">
+              <div class="item">
+                <div class="thumb">
+                  <a href="/product-details?id=<%= product.id %>"><img src="<%= product.image_url %>" alt="<%= product.name %>"></a>
+                  <span class="price" 
+                        data-price-usd="<%= product.price_usd %>" 
+                        data-price-rub="<%= product.price_rub %>" 
+                        data-discounted-usd="<%= product.discounted_price_usd %>" 
+                        data-discounted-rub="<%= product.discounted_price_rub %>">
+                    <% if (product.discounted_price_usd) { %>
+                      <em>$<%= product.price_usd %></em> $<%= product.discounted_price_usd %>
+                    <% } else { %>
+                      $<%= product.price_usd %>
+                    <% } %>
+                  </span>
+                </div>
+                <div class="down-content">
+                  <span class="category"><%= product.category %></span>
+                  <h4 data-name-en="<%= product.name %>" data-name-ru="<%= product.name_ru || product.name %>">
+                    <%= product.name %>
+                  </h4>
+                  <a href="/product-details?id=<%= product.id %>"><i class="fa fa-shopping-bag"></i></a>
+                </div>
+              </div>
+            </div>
+          <% }); %>
+        <% } else { %>
+          <!-- Fallback for static demo preview -->
+          <div class="col-lg-3 col-md-6">
+            <div class="item">
+              <div class="thumb">
+                <a href="/product-details?id=1"><img src="assets/images/trending-01.jpg" alt=""></a>
+                <span class="price" data-price-usd="36" data-price-rub="3600" data-discounted-usd="24" data-discounted-rub="2400"><em>$36</em> $24</span>
+              </div>
+              <div class="down-content">
+                <span class="category">Action</span>
+                <h4 data-name-en="Assassin Creed" data-name-ru="Кредо Убийцы">Assassin Creed</h4>
+                <a href="/product-details?id=1"><i class="fa fa-shopping-bag"></i></a>
+              </div>
+            </div>
+          </div>
+          <!-- Add more static product items for demo -->
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+<%- include('partials/footer') %> 

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %></title>
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="/assets/css/fontawesome.css">
+  <link rel="stylesheet" href="/assets/css/owl.css">
+  <link rel="stylesheet" href="/assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css">
+  <link rel="stylesheet" href="/assets/css/checkout.css">
+  <link rel="stylesheet" href="/assets/css/winkey.css">
+</head>
+
+<body>
+  <!-- ***** Header Area Start ***** -->
+  <%- include('partials/header') %>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="container checkout-container" id="checkout-content">
+    <!-- Error message area -->
+    <div class="alert alert-danger d-none" id="error-message"></div>
+    
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card">
+          <div class="card-header">
+            <h4><%= settings.language === 'ru' ? 'Оформление заказа' : 'Checkout' %></h4>
+          </div>
+          <div class="card-body">
+            <% if (cartItems.length === 0) { %>
+              <div class="alert alert-warning">
+                <%= settings.language === 'ru' ? 'Ваша корзина пуста.' : 'Your cart is empty.' %>
+                <a href="/shop"><%= settings.language === 'ru' ? 'Вернуться к покупкам' : 'Return to shop' %></a>
+              </div>
+            <% } else { %>
+              <h5><%= settings.language === 'ru' ? 'Ваш заказ' : 'Your Order' %></h5>
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th><%= settings.language === 'ru' ? 'Товар' : 'Product' %></th>
+                      <th><%= settings.language === 'ru' ? 'Количество' : 'Quantity' %></th>
+                      <th><%= settings.language === 'ru' ? 'Цена' : 'Price' %></th>
+                      <th><%= settings.language === 'ru' ? 'Сумма' : 'Subtotal' %></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% cartItems.forEach(item => { %>
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <% if (item.image_url) { %>
+                              <img src="<%= item.image_url %>" alt="<%= item.name %>" class="checkout-product-image me-3">
+                            <% } else { %>
+                              <img src="https://graph.digiseller.ru/img.ashx?id_d=<%= item.product_id %>&maxlength=60" alt="<%= item.name %>" class="checkout-product-image me-3">
+                            <% } %>
+                            <span><%= item.name %></span>
+                          </div>
+                        </td>
+                        <td><%= item.quantity %></td>
+                        <td>
+                          <% if (currency === 'USD') { %>
+                            <% if (item.discounted_price_usd) { %>
+                              <span class="text-muted text-decoration-line-through">$<%= item.price_usd.toFixed(2) %></span>
+                              $<%= item.discounted_price_usd.toFixed(2) %>
+                            <% } else { %>
+                              $<%= item.price_usd.toFixed(2) %>
+                            <% } %>
+                          <% } else { %>
+                            <% if (item.discounted_price_rub) { %>
+                              <span class="text-muted text-decoration-line-through"><%= item.price_rub.toFixed(2) %> ₽</span>
+                              <%= item.discounted_price_rub.toFixed(2) %> ₽
+                            <% } else { %>
+                              <%= item.price_rub.toFixed(2) %> ₽
+                            <% } %>
+                          <% } %>
+                        </td>
+                        <td>
+                          <% if (currency === 'USD') { %>
+                            <% const price = item.discounted_price_usd || item.price_usd; %>
+                            $<%= (price * item.quantity).toFixed(2) %>
+                          <% } else { %>
+                            <% const price = item.discounted_price_rub || item.price_rub; %>
+                            <%= (price * item.quantity).toFixed(2) %> ₽
+                          <% } %>
+                        </td>
+                      </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+              </div>
+              
+              <form id="checkout-form" class="mt-4">
+                <div class="mb-3">
+                  <label for="email" class="form-label"><%= settings.language === 'ru' ? 'Электронная почта' : 'Email' %> *</label>
+                  <input type="email" class="form-control" id="email" name="email" required 
+                         value="<%= user ? user.email : '' %>" <%= user ? 'readonly' : '' %>>
+                  <small class="text-muted"><%= settings.language === 'ru' ? 'На этот адрес будет отправлен ключ активации и чек' : 'Activation key and receipt will be sent to this address' %></small>
+                </div>
+                
+                <h5 class="mt-4"><%= settings.language === 'ru' ? 'Способ оплаты' : 'Payment Method' %></h5>
+                <div class="payment-methods">
+                  <div class="payment-method-option selected" data-method="digiseller">
+                    <div class="d-flex align-items-center">
+                      <img src="/assets/images/digiseller-logo.png" alt="Digiseller">
+                      <span><%= settings.language === 'ru' ? 'Digiseller (Карты, ЮMoney, QIWI, WebMoney и др.)' : 'Digiseller (Cards, YooMoney, QIWI, WebMoney, etc.)' %></span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="d-grid gap-2 mt-4">
+                  <button type="submit" class="btn btn-primary btn-lg" id="place-order-btn">
+                    <%= settings.language === 'ru' ? 'Оформить заказ' : 'Place Order' %>
+                  </button>
+                </div>
+              </form>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card checkout-summary">
+          <div class="card-body">
+            <h5><%= settings.language === 'ru' ? 'Сводка заказа' : 'Order Summary' %></h5>
+            <div class="d-flex justify-content-between mt-3">
+              <span><%= settings.language === 'ru' ? 'Товары' : 'Items' %></span>
+              <span>
+                <% if (currency === 'USD') { %>
+                  $<%= total.toFixed(2) %>
+                <% } else { %>
+                  <%= total.toFixed(2) %> ₽
+                <% } %>
+              </span>
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <strong><%= settings.language === 'ru' ? 'Итого' : 'Total' %></strong>
+              <strong>
+                <% if (currency === 'USD') { %>
+                  $<%= total.toFixed(2) %>
+                <% } else { %>
+                  <%= total.toFixed(2) %> ₽
+                <% } %>
+              </strong>
+            </div>
+            
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="checkbox" id="terms-check" required checked>
+              <label class="form-check-label" for="terms-check">
+                <%= settings.language === 'ru' ? 'Я согласен с условиями продажи цифровых товаров' : 'I agree to the terms and conditions for digital goods' %>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ***** Footer Start ***** -->
+  <%- include('partials/footer') %>
+  <!-- ***** Footer End ***** -->
+
+  <!-- jQuery, Bootstrap JS and other scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/assets/js/owl-carousel.js"></script>
+  <script src="/assets/js/custom.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      // Check if returning from payment page with order ID in localStorage
+      const pendingOrderId = localStorage.getItem('pendingOrderId');
+      
+      if (pendingOrderId) {
+        // Show loading indicator
+        $('#checkout-content').hide();
+        $('body').append('<div id="payment-status-check" class="text-center p-5"><h3>Verifying payment status...</h3><div class="spinner-border mt-3" role="status"><span class="sr-only">Loading...</span></div></div>');
+        
+        // Function to check payment status
+        function checkPaymentStatus() {
+          $.ajax({
+            url: `/api/payment-status/${pendingOrderId}`,
+            method: 'GET',
+            success: function(response) {
+              console.log('Payment status response:', response);
+              
+              if (response.status === 'paid') {
+                // Payment successful - redirect to success page
+                localStorage.removeItem('pendingOrderId');
+                window.location.href = `/order-success?id=${response.order_id}`;
+              } else {
+                // Payment failed or canceled
+                localStorage.removeItem('pendingOrderId');
+                showError('<%= settings.language === "ru" ? "Оплата не была завершена. Пожалуйста, попробуйте еще раз." : "Payment was not completed. Please try again." %>');
+                $('#payment-status-check').remove();
+                $('#checkout-content').show();
+              }
+            },
+            error: function(xhr) {
+              console.error('Error checking payment status:', xhr);
+              localStorage.removeItem('pendingOrderId');
+              showError('<%= settings.language === "ru" ? "Не удалось проверить статус платежа. Пожалуйста, свяжитесь с поддержкой, если платеж был выполнен." : "Could not verify payment status. Please contact support if payment was completed." %>');
+              $('#payment-status-check').remove();
+              $('#checkout-content').show();
+            }
+          });
+        }
+        
+        // Start checking payment status
+        checkPaymentStatus();
+      }
+      
+      // Show error message
+      function showError(message) {
+        $('#error-message').text(message).removeClass('d-none');
+        $('html, body').animate({ scrollTop: 0 }, 'slow');
+      }
+      
+      // Handle form submission
+      $('#checkout-form').submit(function(e) {
+        e.preventDefault();
+        
+        // Clear previous errors
+        $('#error-message').addClass('d-none');
+        
+        // Show loading
+        $('#place-order-btn').prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <%= settings.language === "ru" ? "Обработка..." : "Processing..." %>');
+        
+        // Get form data
+        const formData = {
+          email: $('#email').val(),
+          currency: '<%= currency %>',
+          lang: '<%= settings.language === "ru" ? "ru-RU" : "en-US" %>'
+        };
+        
+        // Submit checkout request
+        $.ajax({
+          url: '/api/checkout',
+          method: 'POST',
+          data: formData,
+          success: function(response) {
+            console.log('Checkout response:', response);
+            
+            if (response.success && response.redirect_url) {
+              // Store order ID in localStorage for status checking after return
+              if (response.order_id) {
+                localStorage.setItem('pendingOrderId', response.order_id);
+              } else {
+                // Extract order ID from cf1 parameter in redirect URL if available
+                const redirectUrl = new URL(response.redirect_url);
+                const params = new URLSearchParams(redirectUrl.search);
+                const orderId = params.get('cf1');
+                if (orderId) {
+                  localStorage.setItem('pendingOrderId', orderId);
+                }
+              }
+              
+              // Redirect to payment page
+              window.location.href = response.redirect_url;
+            } else {
+              showError(response.error || '<%= settings.language === "ru" ? "Ошибка обработки заказа" : "Error processing checkout" %>');
+              $('#place-order-btn').prop('disabled', false).text('<%= settings.language === "ru" ? "Оформить заказ" : "Place Order" %>');
+            }
+          },
+          error: function(xhr) {
+            console.error('Checkout error:', xhr);
+            showError(xhr.responseJSON?.error || '<%= settings.language === "ru" ? "Ошибка обработки заказа" : "Error processing checkout" %>');
+            $('#place-order-btn').prop('disabled', false).text('<%= settings.language === "ru" ? "Оформить заказ" : "Place Order" %>');
+          }
+        });
+        
+        return false;
+      });
+    });
+  </script>
+</body>
+</html> 

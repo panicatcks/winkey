@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <title><%= typeof title !== 'undefined' ? title : 'Winkey - Store' %></title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" href="/assets/css/fontawesome.css">
+    <link rel="stylesheet" href="/assets/css/winkey.css">
+    <link rel="stylesheet" href="/assets/css/owl.css">
+    <link rel="stylesheet" href="/assets/css/animate.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <link rel="stylesheet" href="/assets/css/header.css">
+    <link rel="stylesheet" href="/assets/css/layout.css">
+    <script src="/assets/js/auth-status.js" defer></script>
+    
+    <!-- Global variables for page scripts -->
+    <script>
+      // Make pageName available to all scripts
+      const pageName = '<%= typeof pageName !== "undefined" ? pageName : "" %>';
+    </script>
+    
+    <!-- Global Language Switching Script -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Get current language from cookie or default to 'en'
+        let currentLang = (document.cookie.match(/locale=([^;]+)/) || [])[1] || 'en';
+        
+        // Set active language flag
+        const updateActiveLangFlag = () => {
+          document.querySelectorAll('.language-flag').forEach(flag => {
+            if(flag.getAttribute('data-lang') === currentLang) {
+              flag.classList.add('active');
+            } else {
+              flag.classList.remove('active');
+            }
+          });
+        };
+        
+        // Function to update UI based on selected language
+        const updateLanguage = (lang) => {
+          // Update product names
+          document.querySelectorAll('[data-name-en]').forEach(el => {
+            el.textContent = lang === 'ru' ? el.getAttribute('data-name-ru') : el.getAttribute('data-name-en');
+          });
+          
+          // Update UI texts
+          document.querySelectorAll('[data-text-en]').forEach(el => {
+            el.textContent = lang === 'ru' ? el.getAttribute('data-text-ru') : el.getAttribute('data-text-en');
+          });
+          
+          // Update price displays if they exist
+          document.querySelectorAll('.price-cell[data-price-usd]').forEach(el => {
+            if (lang === 'ru') {
+              const priceRub = el.getAttribute('data-price-rub');
+              const discountedRub = el.getAttribute('data-discounted-rub');
+              
+              if (discountedRub && discountedRub !== '') {
+                el.innerHTML = `<span class="product-discounted">${priceRub} ₽</span><span class="product-price">${discountedRub} ₽</span>`;
+              } else {
+                el.innerHTML = `<span class="product-price">${priceRub} ₽</span>`;
+              }
+            } else {
+              const priceUsd = el.getAttribute('data-price-usd');
+              const discountedUsd = el.getAttribute('data-discounted-usd');
+              
+              if (discountedUsd && discountedUsd !== '') {
+                el.innerHTML = `<span class="product-discounted">$${priceUsd}</span><span class="product-price">$${discountedUsd}</span>`;
+              } else {
+                el.innerHTML = `<span class="product-price">$${priceUsd}</span>`;
+              }
+            }
+          });
+          
+          // Update active language flag
+          updateActiveLangFlag();
+        };
+        
+        // Apply current language on page load
+        updateLanguage(currentLang);
+        
+        // Add click handlers to language flags
+        document.querySelectorAll('.language-flag').forEach(flag => {
+          flag.addEventListener('click', function() {
+            const lang = this.getAttribute('data-lang');
+            currentLang = lang;
+            // Set language cookie (expires in 30 days)
+            const date = new Date();
+            date.setTime(date.getTime() + (30 * 24 * 60 * 60 * 1000));
+            document.cookie = `locale=${lang}; expires=${date.toUTCString()}; path=/`;
+            // Update UI
+            updateLanguage(lang);
+            if (window.updateProfileDropdownLanguage) {
+              window.updateProfileDropdownLanguage(lang);
+            }
+          });
+        });
+      });
+    </script>
+  </head>
+
+<body>
+
+  <!-- ***** Preloader Start ***** -->
+  <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+  <!-- ***** Preloader End ***** -->
+
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky background-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <!-- ***** Logo Start ***** -->
+                    <a href="/" class="logo">
+                        <img src="/assets/images/logo.png" alt="">
+                    </a>
+                    <!-- ***** Logo End ***** -->
+                    <!-- ***** Menu Start ***** -->
+                    <ul class="nav">
+                      <li>
+                        <div class="language-selector">
+                          <img src="/assets/images/us-flag.png" class="language-flag" id="lang-en" alt="English" title="English" data-lang="en">
+                          <img src="/assets/images/ru-flag.png" class="language-flag" id="lang-ru" alt="Russian" title="Russian" data-lang="ru">
+                        </div>
+                      </li>
+                      <li><a href="/" class="<%= activePage === 'home' ? 'active' : '' %>">Home</a></li>
+                      <li><a href="/shop" class="<%= activePage === 'shop' ? 'active' : '' %>">Our Shop</a></li>
+                      <li id="signin-link"><a href="/login">Sign In</a></li>
+                      <li id="register-link"><a href="/register">Register</a></li>
+                      <li>
+                        <a href="/cart" title="Корзина" style="display: flex; align-items: center; padding: 0 10px;">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 9m13-9l2 9m-5-9V6a2 2 0 10-4 0v7" />
+                          </svg>
+                        </a>
+                      </li>
+                    </ul>   
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                    <!-- ***** Menu End ***** -->
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+</body>
+</html> 

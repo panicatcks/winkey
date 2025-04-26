@@ -1,0 +1,92 @@
+<%- include('partials/header', { pageName: 'product-details' }) %>
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3>Product Details</h3>
+          <span class="breadcrumb"><a href="/">Home</a> > Product Details</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="single-product section">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6">
+          <div class="left-image">
+            <% if (typeof product !== 'undefined' && product) { %>
+              <% if (product.image_url) { %>
+                <img src="<%= product.image_url %>" alt="<%= product.name %>">
+              <% } else { %>
+                <img src="https://graph.digiseller.ru/img.ashx?id_d=<%= product.id %>&maxlength=350" alt="<%= product.name %>">
+              <% } %>
+            <% } else { %>
+              <img src="/assets/images/single-game.jpg" alt="Game">
+            <% } %>
+          </div>
+        </div>
+        <div class="col-lg-6 align-self-center">
+          <h4 
+            <% if (typeof product !== 'undefined' && product) { %>
+              data-name-en="<%= product.name %>" 
+              data-name-ru="<%= product.name_ru || product.name %>"
+            <% } else { %>
+              data-name-en="Assassin Creed" 
+              data-name-ru="Кредо Убийцы"
+            <% } %>
+          >
+            <%= typeof product !== 'undefined' && product ? product.name : 'Assassin Creed' %>
+          </h4>
+          <span class="price"
+            <% if (typeof product !== 'undefined' && product) { %>
+              data-price-usd="<%= product.price_usd %>" 
+              data-price-rub="<%= product.price_rub %>" 
+              data-discounted-usd="<%= product.discounted_price_usd || '' %>" 
+              data-discounted-rub="<%= product.discounted_price_rub || '' %>"
+            <% } else { %>
+              data-price-usd="36" 
+              data-price-rub="3600" 
+              data-discounted-usd="24" 
+              data-discounted-rub="2400"
+            <% } %>
+          >
+            <% if (typeof product !== 'undefined' && product && product.discounted_price_usd) { %>
+              <em>$<%= product.price_usd %></em> $<%= product.discounted_price_usd %>
+            <% } else if (typeof product !== 'undefined' && product) { %>
+              $<%= product.price_usd %>
+            <% } else { %>
+              <em>$36</em> $24
+            <% } %>
+          </span>
+          <p 
+            <% if (typeof product !== 'undefined' && product) { %>
+              data-desc-en="<%= product.description %>" 
+              data-desc-ru="<%= product.description_ru || product.description %>"
+            <% } else { %>
+              data-desc-en="Action-adventure game set in an open world environment" 
+              data-desc-ru="Приключенческий боевик в открытом мире"
+            <% } %>
+          >
+            <%= typeof product !== 'undefined' && product ? product.description : 'Action-adventure game set in an open world environment' %>
+          </p>
+          <form id="quantity" action="#">
+            <input type="number" class="form-control" id="quantity-input" value="1" min="1">
+            <button type="button" id="add-to-cart">Add To Cart <i class="fa fa-shopping-bag"></i></button>
+          </form>
+          <ul>
+            <li><span>Category: </span><% if (typeof product !== 'undefined' && product) { %><%= product.category || 'Game' %><% } else { %>Action<% } %></li>
+            <li><span>Available: </span>Yes</li>
+          </ul>
+        </div>
+        <div class="col-lg-12">
+          <div class="sep"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+ 
+
+<%- include('partials/footer', { pageName: 'product-details' }) %> 

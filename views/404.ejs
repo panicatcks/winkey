@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <title><%= title %></title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="/assets/css/fontawesome.css">
+  <link rel="stylesheet" href="/assets/css/winkey.css">
+  <link rel="stylesheet" href="/assets/css/owl.css">
+  <link rel="stylesheet" href="/assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+</head>
+
+<body>
+  <!-- ***** Header Area Start ***** -->
+  <%- include('partials/header', { user: typeof user !== 'undefined' ? user : null, activePage: '404', pageName: '404' }) %>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3 data-text-en="404 - Page Not Found" data-text-ru="404 - Страница не найдена">404 - Page Not Found</h3>
+          <span class="breadcrumb"><a href="/">Home</a> > <span data-text-en="404" data-text-ru="404">404</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="margin-top: 60px; margin-bottom: 60px; text-align: center;">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="section-heading">
+          <h2 data-text-en="Oops!" data-text-ru="Упс!">Oops! <em data-text-en="Page Not Found" data-text-ru="Страница не найдена">Page Not Found</em></h2>
+        </div>
+        <div style="margin-bottom: 30px;">
+          <i class="fa fa-exclamation-triangle" style="font-size: 80px; color: #ee626b; margin-bottom: 30px;"></i>
+          <p style="font-size: 18px; margin-bottom: 30px;" data-text-en="The page you are looking for might have been removed, had its name changed, or is temporarily unavailable." data-text-ru="Страница, которую вы ищете, могла быть удалена, переименована или временно недоступна.">The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.</p>
+          <a href="/" class="btn btn-primary" data-text-en="Return to Homepage" data-text-ru="Вернуться на главную">Return to Homepage</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <%- include('partials/footer') %>
+
+  <!-- Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/assets/js/isotope.min.js"></script>
+  <script src="/assets/js/owl-carousel.js"></script>
+  <script src="/assets/js/counter.js"></script>
+  <script src="/assets/js/custom.js"></script>
+</body>
+</html> 

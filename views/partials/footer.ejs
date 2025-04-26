@@ -1,0 +1,315 @@
+  <footer>
+    <div class="container">
+      <div class="col-lg-12">
+        <p>Copyright © 2025 Winkey Company. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- Bootstrap core JavaScript -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/assets/js/isotope.min.js"></script>
+  <script src="/assets/js/owl-carousel.js"></script>
+  <script src="/assets/js/custom.js"></script>
+
+  <!-- Cart Script for product-details page -->
+  <script src="/assets/js/cart.js"></script>
+
+  <!-- Language and Currency Script -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      let language = localStorage.getItem('language') || 'en';
+      let currency = localStorage.getItem('currency') || 'USD';
+      
+      // Set active language flag
+      const langEn = document.getElementById('lang-en');
+      const langRu = document.getElementById('lang-ru');
+      if (langEn && langRu) {
+          if (language === 'en') langEn.classList.add('active');
+          else langRu.classList.add('active');
+      }
+      
+      // English flag click handler
+      if(langEn) {
+          langEn.addEventListener('click', function() {
+            language = 'en';
+            localStorage.setItem('language', language);
+            this.classList.add('active');
+            if(langRu) langRu.classList.remove('active');
+            updatePageTexts();
+            updatePriceDisplay(); 
+            saveUserSettings();
+          });
+      }
+      
+      // Russian flag click handler
+      if(langRu) {
+          langRu.addEventListener('click', function() {
+            language = 'ru';
+            localStorage.setItem('language', language);
+            this.classList.add('active');
+            if(langEn) langEn.classList.remove('active');
+            updatePageTexts();
+            updatePriceDisplay(); 
+            saveUserSettings();
+          });
+      }
+      
+      // Function to save user settings to DB if authenticated
+      function saveUserSettings() {
+        fetch('/api/auth/check') 
+          .then(response => response.json())
+          .then(data => {
+            if (data.isAuthenticated) {
+              fetch('/api/user/settings', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ language, currency: language === 'ru' ? 'RUB' : 'USD' })
+              }).catch(err => console.error('Error saving user settings:', err));
+            }
+          }).catch(err => console.error('Error checking auth:', err));
+      }
+
+      // Function to update prices based on currency
+      function updatePriceDisplay() {
+          currency = language === 'ru' ? 'RUB' : 'USD';
+          localStorage.setItem('currency', currency);
+          const currencySymbol = currency === 'USD' ? '$' : '₽';
+          
+          // Update prices on all appropriate elements
+          document.querySelectorAll('.price').forEach(el => {
+              if (!el.hasAttribute('data-price-usd')) return; // Skip if no data attribute
+              
+              const priceUSD = parseFloat(el.getAttribute('data-price-usd'));
+              const priceRUB = parseFloat(el.getAttribute('data-price-rub'));
+              const discountedUSD = el.getAttribute('data-discounted-usd') ? parseFloat(el.getAttribute('data-discounted-usd')) : null;
+              const discountedRUB = el.getAttribute('data-discounted-rub') ? parseFloat(el.getAttribute('data-discounted-rub')) : null;
+
+              if (currency === 'USD') {
+                  if (discountedUSD !== null) {
+                      el.innerHTML = `<em>${currencySymbol}${priceUSD.toFixed(0)}</em> ${currencySymbol}${discountedUSD.toFixed(0)}`;
+                  } else {
+                      el.textContent = `${currencySymbol}${priceUSD.toFixed(0)}`;
+                  }
+              } else { // RUB
+                  if (discountedRUB !== null) {
+                      el.innerHTML = `<em>${priceRUB.toFixed(0)}${currencySymbol}</em> ${discountedRUB.toFixed(0)}${currencySymbol}`;
+                  } else {
+                      el.textContent = `${priceRUB.toFixed(0)}${currencySymbol}`;
+                  }
+              }
+          });
+          
+          // Handle single product view on product details page
+          const singleProductPrice = document.querySelector('.single-product .price');
+          if (singleProductPrice) {
+              const priceUSD = parseFloat(singleProductPrice.getAttribute('data-price-usd'));
+              const priceRUB = parseFloat(singleProductPrice.getAttribute('data-price-rub'));
+              const discountedUSD = singleProductPrice.getAttribute('data-discounted-usd') ? parseFloat(singleProductPrice.getAttribute('data-discounted-usd')) : null;
+              const discountedRUB = singleProductPrice.getAttribute('data-discounted-rub') ? parseFloat(singleProductPrice.getAttribute('data-discounted-rub')) : null;
+
+              if (currency === 'USD') {
+                  if (discountedUSD !== null) {
+                      singleProductPrice.innerHTML = `<em>${currencySymbol}${priceUSD.toFixed(0)}</em> ${currencySymbol}${discountedUSD.toFixed(0)}`;
+                  } else {
+                      singleProductPrice.textContent = `${currencySymbol}${priceUSD.toFixed(0)}`;
+                  }
+              } else { // RUB
+                  if (discountedRUB !== null) {
+                      singleProductPrice.innerHTML = `<em>${priceRUB.toFixed(0)}${currencySymbol}</em> ${discountedRUB.toFixed(0)}${currencySymbol}`;
+                  } else {
+                      singleProductPrice.textContent = `${priceRUB.toFixed(0)}${currencySymbol}`;
+                  }
+              }
+          }
+      }
+      
+      // Function to update text content based on selected language
+      function updatePageTexts() {
+          const pageName = '<%= typeof pageName !== "undefined" ? pageName : "" %>';
+          
+          // Common elements across all pages
+          if (language === 'ru') {
+              // Navigation translations
+              updateTextContent('.nav li:nth-child(1) a', 'Главная');
+              updateTextContent('.nav li:nth-child(2) a', 'Главная');
+              updateTextContent('.nav li:nth-child(3) a', 'Магазин');
+              
+              // Footer translation
+              updateTextContent('footer p', 'Авторские права © 2025 Winkey Company. Все права защищены.');
+              
+              // Page-specific translations based on page template
+              if (pageName === 'home') {
+                  // Home page translations
+                  updateTextContent('.caption h6', 'Добро пожаловать в Winkey');
+                  updateTextContent('.caption h2', 'ЛУЧШИЙ МАГАЗИН ПРОДУКТОВ!');
+                  updateTextContent('.search-input input', 'Введите запрос', 'placeholder');
+                  updateTextContent('.search-input button', 'Искать');
+                  // Continue with other home page elements...
+              }
+              else if (pageName === 'shop') {
+                  // Shop page translations
+                  updateTextContent('.page-heading h3', 'Наш Магазин');
+                  updateTextContent('.page-heading .breadcrumb', 'Главная > Наш Магазин');
+                  updateTextContent('.section-heading h2', 'Наши Последние Продукты');
+                  // Continue with other shop page elements...
+              }
+              else if (pageName === 'product-details') {
+                  // Get product name/description
+                  const productNameElement = document.querySelector('.single-product h4');
+                  const productDescElement = document.querySelector('.single-product p');
+                  const productNameRu = productNameElement ? productNameElement.getAttribute('data-name-ru') : '';
+                  const productDescRu = productDescElement ? productDescElement.getAttribute('data-desc-ru') : '';
+                  
+                  // Product details page translations
+                  updateTextContent('.page-heading h3', 'Детали товара');
+                  updateTextContent('.page-heading .breadcrumb', 'Главная > Детали товара');
+                  updateTextContent('.single-product .section-heading h6', 'ПРОДУКТ ГОДА');
+                  if (productNameRu) updateTextContent('.single-product h4', productNameRu);
+                  if (productDescRu) updateTextContent('.single-product p', productDescRu);
+                  updateTextContent('.single-product form button', 'Добавить в корзину');
+                  updateTextContent('.single-product .info span:nth-child(1)', 'Категория:');
+                  updateTextContent('.single-product .info span:nth-child(2)', 'Доступность:');
+                  updateTextContent('.more-info .section-heading h6', 'ТРЕНД');
+                  updateTextContent('.more-info .section-heading h2', 'Похожие продукты');
+                  updateTextContent('.more-info .main-button a', 'Смотреть все');
+              } 
+              else if (pageName === 'contact') {
+                  // Contact page translations
+                  updateTextContent('.page-heading h3', 'Связаться с нами');
+                  updateTextContent('.page-heading .breadcrumb', 'Главная > Связаться с нами');
+                  updateTextContent('.left-text .section-heading h6', 'Связь с нами');
+                  updateTextContent('.left-text .section-heading h2', 'Скажите Привет!');
+                  updateTextContent('.left-text p', 'Здесь может быть ваш текст описания для контактной страницы.');
+                  updateTextContent('.left-text ul li:nth-child(1) span', 'Адрес');
+                  updateTextContent('.left-text ul li:nth-child(2) span', 'Телефон');
+                  updateTextContent('.left-text ul li:nth-child(3) span', 'Эл. почта');
+                  updatePlaceholder('#name', 'Ваше Имя...');
+                  updatePlaceholder('#surname', 'Ваша Фамилия...');
+                  updatePlaceholder('#email', 'Ваш E-mail...');
+                  updatePlaceholder('#subject', 'Тема...');
+                  updatePlaceholder('#message', 'Ваше Сообщение');
+                  updateTextContent('#form-submit', 'Отправить Сообщение');
+              }
+          } else {
+              // English translations (default values)
+              updateTextContent('.nav li:nth-child(1) a', 'Home');
+              updateTextContent('.nav li:nth-child(2) a', 'Home');
+              updateTextContent('.nav li:nth-child(3) a', 'Our Shop');
+              
+              updateTextContent('footer p', 'Copyright © 2025 Winkey Company. All rights reserved.');
+              
+              // Page-specific resets based on page template
+              if (pageName === 'home') {
+                  // Reset home page to English
+                  updateTextContent('.caption h6', 'Welcome to Winkey');
+                  updateTextContent('.caption h2', 'BEST PRODUCTS SITE EVER!');
+                  updateTextContent('.search-input input', 'Type Something', 'placeholder');
+                  updateTextContent('.search-input button', 'Search Now');
+                  // Continue with other home page elements...
+              }
+              else if (pageName === 'shop') {
+                  // Reset shop page to English
+                  updateTextContent('.page-heading h3', 'Our Shop');
+                  updateTextContent('.page-heading .breadcrumb', 'Home > Our Shop');
+                  updateTextContent('.section-heading h2', 'Our Latest Products');
+                  // Continue with other shop page elements...
+              }
+              else if (pageName === 'product-details') {
+                  // Get product name/description
+                  const productNameElement = document.querySelector('.single-product h4');
+                  const productDescElement = document.querySelector('.single-product p');
+                  const productName = productNameElement ? productNameElement.getAttribute('data-name-en') : '';
+                  const productDesc = productDescElement ? productDescElement.getAttribute('data-desc-en') : '';
+                  
+                  // Reset product details page to English
+                  updateTextContent('.page-heading h3', 'Product Details');
+                  updateTextContent('.page-heading .breadcrumb', 'Home > Product Details');
+                  updateTextContent('.single-product .section-heading h6', 'PRODUCT OF THE YEAR');
+                  if (productName) updateTextContent('.single-product h4', productName);
+                  if (productDesc) updateTextContent('.single-product p', productDesc);
+                  updateTextContent('.single-product form button', 'Add To Cart <i class="fa fa-shopping-bag"></i>');
+                  updateTextContent('.single-product .info span:nth-child(1)', 'Category:');
+                  updateTextContent('.single-product .info span:nth-child(2)', 'Multiplayer:');
+                  updateTextContent('.more-info .section-heading h6', 'TRENDING');
+                  updateTextContent('.more-info .section-heading h2', 'Related Products');
+                  updateTextContent('.more-info .main-button a', 'View All');
+              }
+              else if (pageName === 'contact') {
+                  // Reset contact page to English
+                  updateTextContent('.page-heading h3', 'Contact Us');
+                  updateTextContent('.page-heading .breadcrumb', 'Home > Contact Us');
+                  updateTextContent('.left-text .section-heading h6', 'Contact Us');
+                  updateTextContent('.left-text .section-heading h2', 'Say Hello!');
+                  updateTextContent('.left-text p', 'Placeholder text for the contact page description.');
+                  updateTextContent('.left-text ul li:nth-child(1) span', 'Address');
+                  updateTextContent('.left-text ul li:nth-child(2) span', 'Phone');
+                  updateTextContent('.left-text ul li:nth-child(3) span', 'Email');
+                  updatePlaceholder('#name', 'Your Name...');
+                  updatePlaceholder('#surname', 'Your Surname...');
+                  updatePlaceholder('#email', 'Your E-mail...');
+                  updatePlaceholder('#subject', 'Subject...');
+                  updatePlaceholder('#message', 'Your Message');
+                  updateTextContent('#form-submit', 'Send Message Now');
+              }
+          }
+          // Обновление названий товаров на главной странице
+          document.querySelectorAll('h4[data-name-en]').forEach(el => {
+            el.textContent = language === 'ru' ? el.getAttribute('data-name-ru') : el.getAttribute('data-name-en');
+          });
+      }
+      
+      // Helper function to update text content of elements
+      function updateTextContent(selector, text, attribute) {
+          const elements = document.querySelectorAll(selector);
+          elements.forEach(element => {
+              if (element) {
+                  if (attribute === 'placeholder') {
+                      element.placeholder = text;
+                  } else if (selector === '.page-heading .breadcrumb' && language === 'ru') {
+                      if (pageName === 'shop')
+                          element.innerHTML = '<a href="#">Главная</a>  >  Магазин';
+                      else if (pageName === 'product-details')
+                          element.innerHTML = '<a href="#">Главная</a>  >  Детали товара';
+                      else if (pageName === 'contact')
+                          element.innerHTML = '<a href="#">Главная</a>  >  Связаться с нами';
+                  } else if (selector === '.page-heading .breadcrumb') {
+                      if (pageName === 'shop')
+                          element.innerHTML = '<a href="#">Home</a>  >  Our Shop';
+                      else if (pageName === 'product-details')
+                          element.innerHTML = '<a href="#">Home</a>  >  Product Details';
+                      else if (pageName === 'contact')
+                          element.innerHTML = '<a href="#">Home</a>  >  Contact Us';
+                  } else if (selector === '.single-product form button' && language === 'en'){
+                      element.innerHTML = text; // Keep HTML for icon
+                  } else if (selector.startsWith('.left-text ul li') && element.querySelector('span')) {
+                      // Update text node after span for address/phone/email
+                      const textNode = Array.from(element.childNodes).find(node => 
+                        node.nodeType === Node.TEXT_NODE);
+                      if (textNode) {
+                          textNode.textContent = ' ' + text.substring(text.indexOf(' ') + 1);
+                      }
+                  } else {
+                      element.textContent = text;
+                  }
+              }
+          });
+      }
+
+      // Helper function to update placeholder text
+      function updatePlaceholder(selector, text) {
+          const element = document.querySelector(selector);
+          if (element) {
+              element.placeholder = text;
+          }
+      }
+      
+      // Initialize the page with correct language
+      updatePageTexts();
+      updatePriceDisplay();
+    });
+  </script>
+</body>
+</html> 

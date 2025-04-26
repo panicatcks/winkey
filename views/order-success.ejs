@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <title>Order Success - WinKey Gaming</title>
+
+  <!-- Page-specific CSS -->
+  <link rel="stylesheet" href="/assets/css/order-success.css">
+</head>
+
+<body>
+  <%- include('partials/header') %>
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3 id="page-title">Order Successful</h3>
+          <span class="breadcrumb"><a href="/">Home</a> > <a href="/cart">Cart</a> > Order Success</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" id="order-success-container">
+    <div class="success-container">
+      <i class="fa fa-check-circle success-icon"></i>
+      <h2 class="success-title" id="success-title">Thank you for your order!</h2>
+      <p class="success-message" id="success-message">Your order has been placed successfully. You will receive a confirmation email shortly.</p>
+      
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <div class="alert alert-success">
+            <p><strong>Order ID:</strong> <span id="order-id">Pending...</span></p>
+            <p><strong id="order-status-label">Order Status:</strong> <span id="order-status">Completed</span></p>
+            <p><strong id="payment-status-label">Payment Status:</strong> <span id="payment-status">Successful</span></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="success-actions">
+        <a href="/profile" class="btn btn-outline-primary" id="view-orders-btn">View My Orders</a>
+        <a href="/shop" class="btn btn-primary" id="continue-shopping-btn">Continue Shopping</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <%- include('partials/footer') %>
+
+  <!-- Page-specific Scripts -->
+  <script>
+    $(document).ready(function() {
+      let language = 'en';
+      
+      // Get order ID from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const orderId = urlParams.get('id');
+      const status = urlParams.get('status') || 'success';
+      
+      // If we have an order ID, fetch order details
+      if (orderId) {
+        fetch(`/api/orders/${orderId}`)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Order not found');
+            }
+            return response.json();
+          })
+          .then(order => {
+            // Display order details
+            if (order) {
+              $('#order-id').text(order.id);
+              $('#order-date').text(new Date(order.purchase_date).toLocaleString());
+              $('#order-status').text(order.status === 'completed' ? 'Completed' : 'Processing');
+              $('#payment-status').text(order.status === 'completed' ? 'Successful' : 'Pending');
+              
+              // If this is a DigiSeller payment, check response
+              if (urlParams.has('payed')) {
+                const isPaid = urlParams.get('payed') === '1';
+                if (isPaid) {
+                  $('#payment-status').text('Successful');
+                } else {
+                  $('#payment-status').text('Failed');
+                  $('#payment-status').css('color', 'red');
+                }
+              }
+            }
+          })
+          .catch(error => {
+            console.error('Error fetching order:', error);
+            $('#success-title').text('Order Status Unknown');
+            $('#success-message').text('We could not retrieve your order details. Please contact customer support.');
+          });
+      }
+      
+      // Check if we have a DigiSeller payment response
+      if (urlParams.has('uniquecode')) {
+        const uniqueCode = urlParams.get('uniquecode');
+        $('#success-message').append(`<p>Your activation key: <strong>${uniqueCode}</strong></p>`);
+      }
+      
+      // Функция для загрузки настроек пользователя
+      function loadUserSettings() {
+        fetch('/api/user/settings')
+          .then(response => response.json())
+          .then(data => {
+            language = data.language || 'en';
+            
+            // Отмечаем активный язык
+            if (language === 'en') {
+              $('#lang-en').addClass('active');
+            } else {
+              $('#lang-ru').addClass('active');
+              updatePageText();
+            }
+          })
+          .catch(err => {
+            console.error('Error loading user settings:', err);
+          });
+      }
+      
+      // Функция для обновления текста на странице в зависимости от выбранного языка
+      function updatePageText() {
+        if (language === 'ru') {
+          $('#page-title').text('Заказ успешно оформлен');
+          $('#success-title').text('Спасибо за ваш заказ!');
+          $('#success-message').text('Ваш заказ успешно размещен. Вы получите письмо с подтверждением в ближайшее время.');
+          $('#order-status-label').text('Статус заказа:');
+          $('#order-status').text('Выполнен');
+          $('#payment-status-label').text('Статус оплаты:');
+          $('#payment-status').text('Успешно');
+          $('#view-orders-btn').text('Мои заказы');
+          $('#continue-shopping-btn').text('Продолжить покупки');
+        } else {
+          $('#page-title').text('Order Successful');
+          $('#success-title').text('Thank you for your order!');
+          $('#success-message').text('Your order has been placed successfully. You will receive a confirmation email shortly.');
+          $('#order-status-label').text('Order Status:');
+          $('#order-status').text('Completed');
+          $('#payment-status-label').text('Payment Status:');
+          $('#payment-status').text('Successful');
+          $('#view-orders-btn').text('View My Orders');
+          $('#continue-shopping-btn').text('Continue Shopping');
+        }
+      }
+      
+      // Обработчики событий
+      $('#lang-en').on('click', function() {
+        language = 'en';
+        $(this).addClass('active');
+        $('#lang-ru').removeClass('active');
+        loadUserSettings();
+        updatePageText();
+      });
+      
+      $('#lang-ru').on('click', function() {
+        language = 'ru';
+        $(this).addClass('active');
+        $('#lang-en').removeClass('active');
+        loadUserSettings();
+        updatePageText();
+      });
+      
+      // Инициализация
+      loadUserSettings();
+    });
+  </script>
+</body>
+</html> 

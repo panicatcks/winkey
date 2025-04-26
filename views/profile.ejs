@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <title>Profile - WinKey Gaming</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="/assets/css/fontawesome.css">
+  <link rel="stylesheet" href="/assets/css/winkey.css">
+  <link rel="stylesheet" href="/assets/css/owl.css">
+  <link rel="stylesheet" href="/assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+  
+  <style>
+    .profile-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .profile-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    
+    .profile-header h2 {
+      color: #0071f8;
+      margin-bottom: 10px;
+    }
+    
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      background-color: #0071f8;
+      border-radius: 50%;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 42px;
+      font-weight: bold;
+      margin-right: 20px;
+    }
+    
+    .profile-details {
+      flex: 1;
+    }
+    
+    .profile-role {
+      display: inline-block;
+      padding: 5px 10px;
+      background-color: #0071f8;
+      color: white;
+      border-radius: 20px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+    
+    .nav-pills .nav-link.active {
+      background-color: #0071f8;
+    }
+    
+    .nav-pills .nav-link {
+      color: #333;
+      border-radius: 10px;
+      margin-right: 5px;
+    }
+    
+    .tab-content {
+      margin-top: 20px;
+    }
+    
+    .purchase-item {
+      border-bottom: 1px solid #eee;
+      padding: 15px 0;
+    }
+    
+    .purchase-item:last-child {
+      border-bottom: none;
+    }
+    
+    .purchase-date {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .purchase-price {
+      font-weight: bold;
+      color: #0071f8;
+    }
+    
+    .empty-message {
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    }
+    
+    .btn-logout {
+      background-color: #f44336;
+      color: white;
+      border: none;
+      padding: 5px 15px;
+      border-radius: 5px;
+      margin-top: 10px;
+    }
+    
+    .btn-logout:hover {
+      background-color: #d32f2f;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ***** Preloader Start ***** -->
+  <!-- <div id="js-preloader" class="js-preloader">
+    <div class="preloader-inner">
+      <span class="dot"></span>
+      <div class="dots">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div> -->
+  <!-- ***** Preloader End ***** -->
+
+  <%- include('partials/header') %>
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3>My Profile</h3>
+          <span class="breadcrumb"><a href="/">Home</a> > Profile</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="margin-top: 60px; margin-bottom: 60px;">
+    <div class="profile-container">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <%= user.username.charAt(0).toUpperCase() %>
+        </div>
+        <div class="profile-details">
+          <h2><%= user.username %></h2>
+          <p><%= user.email %></p>
+          <span class="profile-role"><%= user.role.charAt(0).toUpperCase() + user.role.slice(1) %></span>
+          <% if (user.role === 'admin') { %>
+            <a href="/admin" class="btn btn-primary ml-2">Admin Panel</a>
+          <% } %>
+          <div>
+            <a href="/logout" class="btn btn-logout mt-2">Logout</a>
+          </div>
+        </div>
+      </div>
+      
+      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <a class="nav-link active" id="pills-purchases-tab" data-toggle="pill" href="#pills-purchases" role="tab" aria-controls="pills-purchases" aria-selected="true">Purchase History</a>
+        </li>
+      </ul>
+      
+      <div class="tab-content" id="pills-tabContent">
+        <div class="tab-pane fade show active" id="pills-purchases" role="tabpanel" aria-labelledby="pills-purchases-tab">
+          <% if (purchases.length > 0) { %>
+            <div class="list-group">
+              <% purchases.forEach(purchase => { %>
+                <div class="purchase-item">
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><%= purchase.name %></h5>
+                    <span class="purchase-price">
+                      $<%= purchase.price_usd %> / <%= purchase.price_rub %> ₽
+                    </span>
+                  </div>
+                  <p class="purchase-date mb-1">
+                    Purchased on <%= new Date(purchase.purchase_date).toLocaleDateString() %> at 
+                    <%= new Date(purchase.purchase_date).toLocaleTimeString() %>
+                  </p>
+                  <p class="mb-1">Order ID: #<%= purchase.id %></p>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <div class="empty-message">
+              <p>You have not made any purchases yet.</p>
+              <a href="/shop" class="btn btn-primary" id="start-shopping-btn">Start Shopping</a>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Translation support for profile page
+      const language = localStorage.getItem('language') || 'en';
+      
+      if (language === 'ru') {
+        // Translate page heading
+        updateTextContent('.page-heading h3', 'Мой Профиль');
+        updateTextContent('.page-heading .breadcrumb', '<a href="/">Главная</a> > Профиль');
+        
+        // Translate profile section
+        updateTextContent('#pills-purchases-tab', 'История покупок');
+        updateTextContent('.empty-message p', 'У вас еще нет покупок.');
+        updateTextContent('#start-shopping-btn', 'Начать покупки');
+        updateTextContent('.btn-logout', 'Выйти');
+        
+        // If the user is admin, translate the admin panel button
+        const adminBtn = document.querySelector('.profile-details .btn-primary');
+        if (adminBtn) {
+          adminBtn.textContent = 'Панель администратора';
+        }
+      }
+      
+      // Helper function to update text content
+      function updateTextContent(selector, text) {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => {
+          if (element) {
+            element.innerHTML = text;
+          }
+        });
+      }
+    });
+  </script>
+
+  <%- include('partials/footer') %>
+
+  <!-- Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/assets/js/isotope.min.js"></script>
+  <script src="/assets/js/owl-carousel.js"></script>
+  <script src="/assets/js/counter.js"></script>
+  <script src="/assets/js/custom.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      // Инициализация dropdown меню
+      $('[data-toggle="dropdown"]').dropdown();
+      
+      // Добавляем обработчик событий для dropdown
+      $(document).on('click', '.dropdown-toggle', function(e) {
+        $(this).dropdown('toggle');
+        e.stopPropagation();
+      });
+    });
+  </script>
+</body>
+</html> 

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <title>Admin Purchases - WinKey Gaming</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Additional CSS Files -->
+  <link rel="stylesheet" href="/assets/css/fontawesome.css">
+  <link rel="stylesheet" href="/assets/css/winkey.css">
+  <link rel="stylesheet" href="/assets/css/owl.css">
+  <link rel="stylesheet" href="/assets/css/animate.css">
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap4.min.css">
+  
+  <style>
+    .admin-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 15px;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .admin-sidebar {
+      min-height: 500px;
+      border-right: 1px solid #eee;
+    }
+    
+    .admin-sidebar .nav-link {
+      color: #333;
+      padding: 12px 15px;
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+    
+    .admin-sidebar .nav-link:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .admin-sidebar .nav-link.active {
+      background-color: #0071f8;
+      color: white;
+    }
+    
+    .admin-sidebar .nav-link i {
+      margin-right: 10px;
+    }
+    
+    .admin-content {
+      padding: 20px;
+    }
+    
+    .purchase-price {
+      font-weight: bold;
+      color: #0071f8;
+    }
+    
+    .user-highlight {
+      background-color: #f3f9ff;
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-weight: 500;
+    }
+    
+    .product-highlight {
+      background-color: #f5fff3;
+      border-radius: 5px;
+      padding: 3px 8px;
+      font-weight: 500;
+    }
+    
+    .order-id {
+      color: #666;
+      font-size: 13px;
+    }
+    
+    .purchase-link {
+      color: #0071f8;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .purchase-link:hover {
+      color: #004eae;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <%- include('../partials/header') %>
+
+  <div class="page-heading header-text">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h3>Purchase History</h3>
+          <span class="breadcrumb"><a href="/">Home</a> > <a href="/admin">Admin</a> > Purchases</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" style="margin-top: 60px; margin-bottom: 60px;">
+    <div class="admin-container">
+      <div class="row">
+        <div class="col-lg-3 admin-sidebar">
+          <div class="nav flex-column nav-pills">
+            <a class="nav-link" href="/admin">
+              <i class="fa fa-dashboard"></i> Dashboard
+            </a>
+            <a class="nav-link" href="/admin/products">
+              <i class="fa fa-gamepad"></i> Products
+            </a>
+            <a class="nav-link" href="/admin/users">
+              <i class="fa fa-users"></i> Users
+            </a>
+            <a class="nav-link active" href="/admin/purchases">
+              <i class="fa fa-shopping-cart"></i> Purchases
+            </a>
+          </div>
+        </div>
+        <div class="col-lg-9 admin-content">
+          <h4 class="mb-4">Purchase Records</h4>
+          
+          <div class="table-responsive">
+            <table id="purchasesTable" class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>User</th>
+                  <th>Product</th>
+                  <th>Price</th>
+                  <th>Date & Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% purchases.forEach(purchase => { %>
+                <tr>
+                  <td class="order-id">
+                    <a href="/admin/purchases/<%= purchase.id %>" class="purchase-link">#<%= purchase.id %></a>
+                  </td>
+                  <td>
+                    <span class="user-highlight"><%= purchase.user %></span>
+                  </td>
+                  <td>
+                    <% if (purchase.item_count > 1) { %>
+                      <span class="product-highlight">
+                        <i class="fa fa-shopping-cart"></i> Multiple Items (<%= purchase.item_count %>)
+                      </span>
+                    <% } else { %>
+                      <span class="product-highlight"><%= purchase.product %></span>
+                    <% } %>
+                  </td>
+                  <td>
+                    <span class="purchase-price">$<%= parseFloat(purchase.price_usd).toFixed(2) %></span>
+                    <br>
+                    <small><%= parseFloat(purchase.price_rub).toFixed(2) %> ₽</small>
+                  </td>
+                  <td>
+                    <%= new Date(purchase.purchase_date).toLocaleDateString() %> 
+                    <br>
+                    <small class="text-muted"><%= new Date(purchase.purchase_date).toLocaleTimeString() %></small>
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+          
+          <% if (purchases.length === 0) { %>
+            <div class="alert alert-info text-center mt-4">
+              <p>No purchase records found.</p>
+            </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %> 
+
+  <!-- Scripts -->
+  <script src="/vendor/jquery/jquery.min.js"></script>
+  <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/assets/js/isotope.min.js"></script>
+  <script src="/assets/js/owl-carousel.js"></script>
+  <script src="/assets/js/counter.js"></script>
+  <script src="/assets/js/custom.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap4.min.js"></script>
+  
+  <script>
+    $(document).ready(function() {
+      // Инициализация dropdown меню
+      $('[data-toggle="dropdown"]').dropdown();
+      
+      // Добавляем обработчик событий для dropdown
+      $(document).on('click', '.dropdown-toggle', function(e) {
+        $(this).dropdown('toggle');
+        e.stopPropagation();
+      });
+
+      $('#purchasesTable').DataTable({
+        responsive: true,
+        order: [[4, 'desc']]
+      });
+    });
+  </script>
+</body>
+</html> 
