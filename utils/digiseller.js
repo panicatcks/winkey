@@ -1,6 +1,8 @@
 require('dotenv').config(); // Ensure env variables are loaded
 const https = require('https');
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 
 let pool;
 
@@ -12,6 +14,8 @@ const DIGISELLER_API_KEY = process.env.DIGISELLER_API_KEY;
 let digisellerToken = { token: null, expires: 0 };
 
 // --- Helper Functions (Internal to this module mostly) ---
+
+
 
 async function getDigisellerToken() {
   if (digisellerToken.token && digisellerToken.expires > Date.now()) {
@@ -439,7 +443,7 @@ async function syncProductsFromDigiseller() {
             name: product.name_goods?.trim() || '',
             description: product.info_goods?.trim() || '',
             price_usd: parseFloat(product.price_usd) || 0,
-            price_rub: parseFloat(product.price_rur) || parseFloat(product.price) || 0,
+            price_rub: parseFloat(product.price_rur) || 0,
             category: 'Digiseller', 
             name_ru: product.name_goods?.trim() || '', 
             description_ru: product.info_goods?.trim() || '',
@@ -522,7 +526,7 @@ const setDbPool = (dbPool) => {
 
 // --- Initialization --- 
 
-function startDigisellerSync(intervalHours = 1) {
+function startDigisellerSync() {
     if (!DIGISELLER_API_KEY) {
         console.warn("(Digiseller Util) API Key missing, cannot start sync.");
         return;
@@ -536,15 +540,6 @@ function startDigisellerSync(intervalHours = 1) {
     syncProductsFromDigiseller()
         .then(count => console.log(`(Digiseller Util) Initial sync done. ${count} products processed.`))
         .catch(err => console.error('(Digiseller Util) Initial sync failed:', err.message));
-
-    const intervalMillis = intervalHours * 60 * 60 * 1000;
-    setInterval(() => {
-        console.log("(Digiseller Util) Performing scheduled product sync...");
-        syncProductsFromDigiseller()
-            .then(count => console.log(`(Digiseller Util) Scheduled sync done. ${count} products processed.`))
-            .catch(err => console.error('(Digiseller Util) Scheduled sync failed:', err.message));
-    }, intervalMillis);
-    console.log(`(Digiseller Util) Scheduled sync set for every ${intervalHours} hour(s).`);
 }
 
 async function createDigisellerProduct(productData) {

@@ -26,13 +26,13 @@
       <div class="row">
         <div class="col-lg-6">
           <div class="section-heading">
-            <h6>Trending</h6>
-            <h2>Trending Products</h2>
+            <h6 class="trending-title">Trending</h6>
+            <h2 class="trending-products-title">Trending Products</h2>
           </div>
         </div>
         <div class="col-lg-6">
           <div class="main-button">
-            <a href="/shop">View All</a>
+            <a href="/shop" class="view-all-btn">View All</a>
           </div>
         </div>
         <% trendingProducts.forEach(product => { %>
@@ -90,13 +90,13 @@
       <div class="row">
         <div class="col-lg-6">
           <div class="section-heading">
-            <h6>TOP PRODUCTS</h6>
-            <h2>Most Popular</h2>
+            <h6 class="top-products-title">TOP PRODUCTS</h6>
+            <h2 class="most-popular-title">Most Popular</h2>
           </div>
         </div>
         <div class="col-lg-6">
           <div class="main-button">
-            <a href="/shop">View All</a>
+            <a href="/shop" class="view-all-btn">View All</a>
           </div>
         </div>
         <% mostPlayedProducts.forEach(product => { %>
@@ -116,7 +116,7 @@
                   <%= product.name %>
                 <% } %>
               </h4>
-              <a href="/product-details?id=<%= product.id %>">Explore</a>
+              <a href="/product-details?id=<%= product.id %>" class="explore-btn">Explore</a>
             </div>
           </div>
         </div>

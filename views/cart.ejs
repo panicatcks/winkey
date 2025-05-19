@@ -26,8 +26,8 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-12">
-          <h3>Your Shopping Cart</h3>
-          <span class="breadcrumb"><a href="/">Home</a> > Cart</span>
+          <h3 class="cart-page-title">Your Shopping Cart</h3>
+          <span class="cart-breadcrumb breadcrumb"><a href="/">Home</a> > Cart</span>
         </div>
       </div>
     </div>
@@ -35,24 +35,24 @@
 
   <div class="container" id="cart-main-container">
     <div class="cart-container">
-      <h2 class="mb-4">Корзина</h2>
+      <h2 class="cart-title mb-4">Корзина</h2>
       
       <!-- Пустая корзина -->
       <div class="cart-empty text-center py-5">
         <i class="fa fa-shopping-cart fa-4x mb-3 text-muted"></i>
-        <h4>Ваша корзина пуста</h4>
-        <p class="text-muted">Добавьте товары в корзину для оформления заказа</p>
-        <a href="/" class="btn btn-primary mt-3">Перейти к покупкам</a>
+        <h4 class="cart-empty-title">Ваша корзина пуста</h4>
+        <p class="cart-empty-desc text-muted">Добавьте товары в корзину для оформления заказа</p>
+        <a href="/" class="btn btn-primary mt-3 cart-empty-btn">Перейти к покупкам</a>
       </div>
       
       <!-- Содержимое корзины -->
       <div class="cart-items-container">
-        <div class="row font-weight-bold mb-3">
-          <div class="col-md-2">Изображение</div>
-          <div class="col-md-4">Товар</div>
-          <div class="col-md-2">Количество</div>
-          <div class="col-md-2">Сумма</div>
-          <div class="col-md-2">Действия</div>
+        <div class="row font-weight-bold mb-3 cart-table-header">
+          <div class="col-md-2 cart-th-image">Изображение</div>
+          <div class="col-md-4 cart-th-product">Товар</div>
+          <div class="col-md-2 cart-th-qty">Количество</div>
+          <div class="col-md-2 cart-th-sum">Сумма</div>
+          <div class="col-md-2 cart-th-action">Действия</div>
         </div>
         
         <div id="cartItems">
@@ -66,13 +66,13 @@
           <div class="col-md-6 offset-md-6">
             <div class="card">
               <div class="card-body">
-                <h5 class="card-title">Итого:</h5>
+                <h5 class="cart-total-title card-title">Итого:</h5>
                 <div class="d-flex justify-content-between mb-2">
-                  <span>Всего товаров:</span>
+                  <span class="cart-total-label">Всего товаров:</span>
                   <span class="cart-total-items">0</span>
                 </div>
                 <div class="d-flex justify-content-between mb-3">
-                  <span>Итоговая сумма:</span>
+                  <span class="cart-total-sum-label">Итоговая сумма:</span>
                   <span class="cart-total-price">$0.00</span>
                 </div>
                 
@@ -396,6 +396,7 @@
         saveUserSettings();
         updateCartPricesAndNames();
         updateCartTotals();
+        cartTranslate();
       });
       
       $('#lang-ru').on('click', function() {
@@ -405,6 +406,7 @@
         saveUserSettings();
         updateCartPricesAndNames();
         updateCartTotals();
+        cartTranslate();
       });
       
       $('#clear-cart').on('click', function() {
@@ -451,6 +453,47 @@
         // Update the total price
         $('.cart-total-price').text(`${currencySymbol}${subtotal.toFixed(2)}`);
       }
+
+      function cartTranslate() {
+        const lang = localStorage.getItem('language') || 'en';
+        if (lang === 'ru') {
+          $('.cart-page-title').text('Ваша корзина');
+          $('.cart-breadcrumb').html('<a href="/">Главная</a> > Корзина');
+          $('.cart-title').text('Корзина');
+          $('.cart-empty-title').text('Ваша корзина пуста');
+          $('.cart-empty-desc').text('Добавьте товары в корзину для оформления заказа');
+          $('.cart-empty-btn').text('Перейти к покупкам');
+          $('.cart-th-image').text('Изображение');
+          $('.cart-th-product').text('Товар');
+          $('.cart-th-qty').text('Количество');
+          $('.cart-th-sum').text('Сумма');
+          $('.cart-th-action').text('Действия');
+          $('.cart-total-title').text('Итого:');
+          $('.cart-total-label').text('Всего товаров:');
+          $('.cart-total-sum-label').text('Итоговая сумма:');
+          $('.checkout-btn').text('Оформить заказ');
+          $('.remove-from-cart').text('Удалить');
+        } else {
+          $('.cart-page-title').text('Your Shopping Cart');
+          $('.cart-breadcrumb').html('<a href="/">Home</a> > Cart');
+          $('.cart-title').text('Cart');
+          $('.cart-empty-title').text('Your cart is empty');
+          $('.cart-empty-desc').text('Add items to your cart to proceed to checkout');
+          $('.cart-empty-btn').text('Go to Shop');
+          $('.cart-th-image').text('Image');
+          $('.cart-th-product').text('Product');
+          $('.cart-th-qty').text('Quantity');
+          $('.cart-th-sum').text('Subtotal');
+          $('.cart-th-action').text('Action');
+          $('.cart-total-title').text('Total:');
+          $('.cart-total-label').text('Total items:');
+          $('.cart-total-sum-label').text('Total amount:');
+          $('.checkout-btn').text('Checkout');
+          $('.remove-from-cart').text('Remove');
+        }
+      }
+
+      cartTranslate();
     });
   </script>
 </body>

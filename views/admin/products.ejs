@@ -146,6 +146,7 @@
                   <th>Name</th>
                   <th>Category</th>
                   <th>Price</th>
+                  <th width="100">Visibility</th>
                   <th width="120">Actions</th>
                 </tr>
               </thead>
@@ -168,6 +169,17 @@
                     <% } else { %>
                       <span class="product-price">$<%= parseFloat(product.price_usd).toFixed(2) %></span>
                     <% } %>
+                  </td>
+                  <td>
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input visibility-toggle" 
+                             id="visibility_<%= product.id %>" 
+                             data-id="<%= product.id %>"
+                             <%= product.hidden ? '' : 'checked' %>>
+                      <label class="custom-control-label" for="visibility_<%= product.id %>">
+                        <%= product.hidden ? 'Hidden' : 'Visible' %>
+                      </label>
+                    </div>
                   </td>
                   <td class="action-icons">
                     <a href="#" class="text-primary edit-product" data-id="<%= product.id %>">
@@ -326,6 +338,13 @@
             </div>
             
             <div class="form-group">
+              <div class="custom-control custom-switch">
+                <input type="checkbox" class="custom-control-input" id="edit_hidden" name="hidden">
+                <label class="custom-control-label" for="edit_hidden">Hide product from shop and homepage</label>
+              </div>
+            </div>
+            
+            <div class="form-group">
               <label for="edit_image_file">New Product Image (Optional)</label>
               <input type="file" class="form-control-file" id="edit_image_file" name="image_file" accept="image/*">
               <small class="form-text text-muted">Upload a new image file to replace the current one.</small>
@@ -402,35 +421,6 @@
         }
       });
       
-      // Автоматический расчёт рублёвых цен (курс 90)
-      $('#price_usd').on('input', function() {
-        const usdPrice = parseFloat($(this).val()) || 0;
-        $('#price_rub').val(Math.round(usdPrice * 90));
-      });
-      
-      $('#discounted_price_usd').on('input', function() {
-        const usdPrice = parseFloat($(this).val()) || 0;
-        if (usdPrice > 0) {
-          $('#discounted_price_rub').val(Math.round(usdPrice * 90));
-        } else {
-          $('#discounted_price_rub').val('');
-        }
-      });
-      
-      $('#edit_price_usd').on('input', function() {
-        const usdPrice = parseFloat($(this).val()) || 0;
-        $('#edit_price_rub').val(Math.round(usdPrice * 90));
-      });
-      
-      $('#edit_discounted_price_usd').on('input', function() {
-        const usdPrice = parseFloat($(this).val()) || 0;
-        if (usdPrice > 0) {
-          $('#edit_discounted_price_rub').val(Math.round(usdPrice * 90));
-        } else {
-          $('#edit_discounted_price_rub').val('');
-        }
-      });
-      
       // Populate edit form (AJAX success callback)
       // Use delegated event handling for dynamically loaded products
       $('#productsTable').on('click', '.edit-product', function(e) {
@@ -456,6 +446,7 @@
             $('#edit_discounted_price_usd').val(product.discounted_price_usd || '');
             $('#edit_discounted_price_rub').val(product.discounted_price_rub || '');
             $('#edit_category').val(product.category);
+            $('#edit_hidden').prop('checked', product.hidden);
             // Do not populate the file input, keep it empty
             $('#edit_image_file').val(''); 
 
@@ -511,6 +502,33 @@
           // Optionally: Restore original image if the file selection is cleared
           // You might need to store the original URL in a data attribute for this
         }
+      });
+
+      // Add visibility toggle handler
+      $('.visibility-toggle').on('change', function() {
+        const productId = $(this).data('id');
+        const isVisible = $(this).prop('checked');
+        const label = $(this).next('label');
+        
+        $.ajax({
+          url: `/api/products/${productId}/visibility`,
+          method: 'POST',
+          data: { hidden: !isVisible },
+          success: function(response) {
+            if (response.success) {
+              label.text(isVisible ? 'Visible' : 'Hidden');
+            } else {
+              // Revert the checkbox if the update failed
+              $(this).prop('checked', !isVisible);
+              alert('Failed to update product visibility');
+            }
+          }.bind(this),
+          error: function() {
+            // Revert the checkbox if the request failed
+            $(this).prop('checked', !isVisible);
+            alert('Failed to update product visibility');
+          }.bind(this)
+        });
       });
     });
   </script>

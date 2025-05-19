@@ -1,7 +1,7 @@
   <footer>
     <div class="container">
       <div class="col-lg-12">
-        <p>Copyright © 2025 Winkey Company. All rights reserved.</p>
+        <p id="footer-copyright">Copyright © 2025 Winkey Company. All rights reserved.</p>
       </div>
     </div>
   </footer>
@@ -19,6 +19,24 @@
 
   <!-- Language and Currency Script -->
   <script>
+    function ensureAuthLinkClasses() {
+      // Sign In
+      var signInLi = document.getElementById('signin-link');
+      if (signInLi) {
+        var signInA = signInLi.querySelector('a');
+        if (signInA && !signInA.classList.contains('signin-link')) {
+          signInA.classList.add('signin-link');
+        }
+      }
+      // Register
+      var registerLi = document.getElementById('register-link');
+      if (registerLi) {
+        var registerA = registerLi.querySelector('a');
+        if (registerA && !registerA.classList.contains('register-link')) {
+          registerA.classList.add('register-link');
+        }
+      }
+    }
     document.addEventListener('DOMContentLoaded', function() {
       let language = localStorage.getItem('language') || 'en';
       let currency = localStorage.getItem('currency') || 'USD';
@@ -41,6 +59,7 @@
             updatePageTexts();
             updatePriceDisplay(); 
             saveUserSettings();
+            ensureAuthLinkClasses();
           });
       }
       
@@ -54,6 +73,7 @@
             updatePageTexts();
             updatePriceDisplay(); 
             saveUserSettings();
+            ensureAuthLinkClasses();
           });
       }
       
@@ -124,6 +144,14 @@
                   }
               }
           }
+
+          // --- NEW: Update product description on product-details page ---
+          const singleProductDesc = document.querySelector('.single-product p[data-desc-en]');
+          if (singleProductDesc) {
+              const descEn = singleProductDesc.getAttribute('data-desc-en');
+              const descRu = singleProductDesc.getAttribute('data-desc-ru');
+              singleProductDesc.innerHTML = (language === 'ru' ? descRu : descEn);
+          }
       }
       
       // Function to update text content based on selected language
@@ -193,6 +221,21 @@
                   updatePlaceholder('#message', 'Ваше Сообщение');
                   updateTextContent('#form-submit', 'Отправить Сообщение');
               }
+              else if (pageName === 'checkout') {
+                  // Checkout page translations
+                  updateTextContent('.page-heading h3', 'Оформление заказа');
+                  updateTextContent('.page-heading .breadcrumb', 'Главная > Оформление заказа');
+                  updateTextContent('.cart-title', 'Ваша корзина');
+                  updateTextContent('.order-summary-title', 'Сводка заказа');
+                  updateTextContent('.order-summary-total', 'Итого:');
+                  updateTextContent('.order-summary-items', 'Товары');
+                  updateTextContent('.order-summary-accept', 'Я согласен с условиями продажи цифровых товаров');
+                  updateTextContent('.order-summary-submit', 'Оформить заказ');
+                  updateTextContent('.order-summary-email', 'Электронная почта *');
+                  updateTextContent('.order-summary-email-note', 'На этот адрес будет отправлен ключ активации и чек');
+                  updateTextContent('.order-summary-payment', 'Способ оплаты');
+                  updateTextContent('.order-summary-payment-method', 'Digiseller (Карты, ЮMoney, QIWI, WebMoney и др.)');
+              }
           } else {
               // English translations (default values)
               updateTextContent('.nav li:nth-child(1) a', 'Home');
@@ -254,6 +297,21 @@
                   updatePlaceholder('#message', 'Your Message');
                   updateTextContent('#form-submit', 'Send Message Now');
               }
+              else if (pageName === 'checkout') {
+                  // Checkout page translations
+                  updateTextContent('.page-heading h3', 'Checkout');
+                  updateTextContent('.page-heading .breadcrumb', 'Home > Checkout');
+                  updateTextContent('.cart-title', 'Your Cart');
+                  updateTextContent('.order-summary-title', 'Order Summary');
+                  updateTextContent('.order-summary-total', 'Total:');
+                  updateTextContent('.order-summary-items', 'Items');
+                  updateTextContent('.order-summary-accept', 'I agree to the terms of digital goods sale');
+                  updateTextContent('.order-summary-submit', 'Place Order');
+                  updateTextContent('.order-summary-email', 'Email *');
+                  updateTextContent('.order-summary-email-note', 'The activation key and receipt will be sent to this address');
+                  updateTextContent('.order-summary-payment', 'Payment Method');
+                  updateTextContent('.order-summary-payment-method', 'Digiseller (Cards, YooMoney, QIWI, WebMoney, etc.)');
+              }
           }
           // Обновление названий товаров на главной странице
           document.querySelectorAll('h4[data-name-en]').forEach(el => {
@@ -306,9 +364,48 @@
           }
       }
       
+      // Функция для обновления футера
+      function updateFooter() {
+        const footerText = language === 'ru'
+          ? 'Авторские права © 2025 Winkey Company. Все права защищены.'
+          : 'Copyright © 2025 Winkey Company. All rights reserved.';
+        const footerEl = document.getElementById('footer-copyright');
+        if (footerEl) footerEl.textContent = footerText;
+      }
+      
       // Initialize the page with correct language
       updatePageTexts();
       updatePriceDisplay();
+      updateFooter();
+
+      window.translateCommonUI = function() {
+        const lang = localStorage.getItem('language') || 'en';
+        // Header
+        $('.signin-link').text(lang === 'ru' ? 'Войти' : 'Sign In');
+        $('.register-link').text(lang === 'ru' ? 'Регистрация' : 'Register');
+        $('.nav-home').text(lang === 'ru' ? 'Главная' : 'Home');
+        $('.nav-shop').text(lang === 'ru' ? 'Магазин' : 'Our Shop');
+        $('.menu-text').text(lang === 'ru' ? 'Меню' : 'Menu');
+        // Главная и shop
+        $('.trending-title').text(lang === 'ru' ? 'В тренде' : 'Trending');
+        $('.trending-products-title').text(lang === 'ru' ? 'Трендовые продукты' : 'Trending Products');
+        $('.view-all-btn').text(lang === 'ru' ? 'Смотреть все' : 'View All');
+        $('.top-products-title').text(lang === 'ru' ? 'ТОП ПРОДУКТЫ' : 'TOP PRODUCTS');
+        $('.most-popular-title').text(lang === 'ru' ? 'Самые популярные' : 'Most Popular');
+        $('.latest-products-title').text(lang === 'ru' ? 'Наши последние продукты' : 'Our Latest Products');
+        // Product details
+        $('.product-details-title').text(lang === 'ru' ? 'Детали товара' : 'Product Details');
+        $('.product-details-breadcrumb').html(lang === 'ru' ? '<a href="/">Главная</a> > Детали товара' : '<a href="/">Home</a> > Product Details');
+        $('.add-to-cart-btn').html(lang === 'ru' ? 'Добавить в корзину <i class="fa fa-shopping-bag"></i>' : 'Add To Cart <i class="fa fa-shopping-bag"></i>');
+        $('.category-label').text(lang === 'ru' ? 'Категория: ' : 'Category: ');
+        $('.available-label').text(lang === 'ru' ? 'Доступность: ' : 'Available: ');
+        $('.explore-btn').text(lang === 'ru' ? 'Подробнее' : 'Explore');
+      };
+      window.translateCommonUI();
+      $('#lang-en, #lang-ru').on('click', function() {
+        ensureAuthLinkClasses();
+        window.translateCommonUI && window.translateCommonUI();
+      });
     });
   </script>
 </body>

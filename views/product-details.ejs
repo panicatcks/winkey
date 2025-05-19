@@ -4,8 +4,8 @@
     <div class="container">
       <div class="row">
         <div class="col-lg-12">
-          <h3>Product Details</h3>
-          <span class="breadcrumb"><a href="/">Home</a> > Product Details</span>
+          <h3 class="product-details-title">Product Details</h3>
+          <span class="breadcrumb product-details-breadcrumb"><a href="/">Home</a> > Product Details</span>
         </div>
       </div>
     </div>
@@ -62,22 +62,26 @@
           </span>
           <p 
             <% if (typeof product !== 'undefined' && product) { %>
-              data-desc-en="<%= product.description %>" 
-              data-desc-ru="<%= product.description_ru || product.description %>"
+              data-desc-en="<%= product.description.replace(/<[^>]+>/g, '').replace(/\r?\n/g, '<br>') %>" 
+              data-desc-ru="<%= (product.description_ru || product.description).replace(/<[^>]+>/g, '').replace(/\r?\n/g, '<br>') %>"
             <% } else { %>
               data-desc-en="Action-adventure game set in an open world environment" 
               data-desc-ru="Приключенческий боевик в открытом мире"
             <% } %>
           >
-            <%= typeof product !== 'undefined' && product ? product.description : 'Action-adventure game set in an open world environment' %>
+            <% if (typeof product !== 'undefined' && product) { %>
+              <%- (settings.language === 'ru' && product.description_ru ? product.description_ru : product.description).replace(/<[^>]+>/g, '').replace(/\r?\n/g, '<br>') %>
+            <% } else { %>
+              Action-adventure game set in an open world environment
+            <% } %>
           </p>
           <form id="quantity" action="#">
             <input type="number" class="form-control" id="quantity-input" value="1" min="1">
-            <button type="button" id="add-to-cart">Add To Cart <i class="fa fa-shopping-bag"></i></button>
+            <button type="button" id="add-to-cart" class="add-to-cart-btn">Add To Cart <i class="fa fa-shopping-bag"></i></button>
           </form>
           <ul>
-            <li><span>Category: </span><% if (typeof product !== 'undefined' && product) { %><%= product.category || 'Game' %><% } else { %>Action<% } %></li>
-            <li><span>Available: </span>Yes</li>
+            <li><span class="category-label">Category: </span><% if (typeof product !== 'undefined' && product) { %><%= product.category || 'Game' %><% } else { %>Action<% } %></li>
+            <li><span class="available-label">Available: </span>Yes</li>
           </ul>
         </div>
         <div class="col-lg-12">
@@ -87,6 +91,6 @@
     </div>
   </div>
 
- 
+  <a href="/shop" class="view-all-btn">View All</a>
 
 <%- include('partials/footer', { pageName: 'product-details' }) %> 

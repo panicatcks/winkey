@@ -34,7 +34,7 @@
       <div class="col-lg-8">
         <div class="card">
           <div class="card-header">
-            <h4><%= settings.language === 'ru' ? 'Оформление заказа' : 'Checkout' %></h4>
+            <h4 class="checkout-title"><%= settings.language === 'ru' ? 'Оформление заказа' : 'Checkout' %></h4>
           </div>
           <div class="card-body">
             <% if (cartItems.length === 0) { %>
@@ -43,15 +43,15 @@
                 <a href="/shop"><%= settings.language === 'ru' ? 'Вернуться к покупкам' : 'Return to shop' %></a>
               </div>
             <% } else { %>
-              <h5><%= settings.language === 'ru' ? 'Ваш заказ' : 'Your Order' %></h5>
+              <h5 class="checkout-order-title"><%= settings.language === 'ru' ? 'Ваш заказ' : 'Your Order' %></h5>
               <div class="table-responsive">
                 <table class="table">
                   <thead>
                     <tr>
-                      <th><%= settings.language === 'ru' ? 'Товар' : 'Product' %></th>
-                      <th><%= settings.language === 'ru' ? 'Количество' : 'Quantity' %></th>
-                      <th><%= settings.language === 'ru' ? 'Цена' : 'Price' %></th>
-                      <th><%= settings.language === 'ru' ? 'Сумма' : 'Subtotal' %></th>
+                      <th class="checkout-th-product"><%= settings.language === 'ru' ? 'Товар' : 'Product' %></th>
+                      <th class="checkout-th-qty"><%= settings.language === 'ru' ? 'Количество' : 'Quantity' %></th>
+                      <th class="checkout-th-price"><%= settings.language === 'ru' ? 'Цена' : 'Price' %></th>
+                      <th class="checkout-th-sum"><%= settings.language === 'ru' ? 'Сумма' : 'Subtotal' %></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -69,21 +69,23 @@
                         </td>
                         <td><%= item.quantity %></td>
                         <td>
-                          <% if (currency === 'USD') { %>
-                            <% if (item.discounted_price_usd) { %>
-                              <span class="text-muted text-decoration-line-through">$<%= item.price_usd.toFixed(2) %></span>
-                              $<%= item.discounted_price_usd.toFixed(2) %>
+                          <span class="checkout-item-price" data-price-usd="<%= item.price_usd %>" data-price-rub="<%= item.price_rub %>" data-discounted-usd="<%= item.discounted_price_usd || '' %>" data-discounted-rub="<%= item.discounted_price_rub || '' %>">
+                            <% if (currency === 'USD') { %>
+                              <% if (item.discounted_price_usd) { %>
+                                <span class="text-muted text-decoration-line-through">$<%= item.price_usd.toFixed(2) %></span>
+                                $<%= item.discounted_price_usd.toFixed(2) %>
+                              <% } else { %>
+                                $<%= item.price_usd.toFixed(2) %>
+                              <% } %>
                             <% } else { %>
-                              $<%= item.price_usd.toFixed(2) %>
+                              <% if (item.discounted_price_rub) { %>
+                                <span class="text-muted text-decoration-line-through"><%= item.price_rub.toFixed(2) %> ₽</span>
+                                <%= item.discounted_price_rub.toFixed(2) %> ₽
+                              <% } else { %>
+                                <%= item.price_rub.toFixed(2) %> ₽
+                              <% } %>
                             <% } %>
-                          <% } else { %>
-                            <% if (item.discounted_price_rub) { %>
-                              <span class="text-muted text-decoration-line-through"><%= item.price_rub.toFixed(2) %> ₽</span>
-                              <%= item.discounted_price_rub.toFixed(2) %> ₽
-                            <% } else { %>
-                              <%= item.price_rub.toFixed(2) %> ₽
-                            <% } %>
-                          <% } %>
+                          </span>
                         </td>
                         <td>
                           <% if (currency === 'USD') { %>
@@ -102,24 +104,24 @@
               
               <form id="checkout-form" class="mt-4">
                 <div class="mb-3">
-                  <label for="email" class="form-label"><%= settings.language === 'ru' ? 'Электронная почта' : 'Email' %> *</label>
+                  <label for="email" class="form-label checkout-email-label"><%= settings.language === 'ru' ? 'Электронная почта' : 'Email' %> *</label>
                   <input type="email" class="form-control" id="email" name="email" required 
                          value="<%= user ? user.email : '' %>" <%= user ? 'readonly' : '' %>>
-                  <small class="text-muted"><%= settings.language === 'ru' ? 'На этот адрес будет отправлен ключ активации и чек' : 'Activation key and receipt will be sent to this address' %></small>
+                  <small class="text-muted checkout-email-note"><%= settings.language === 'ru' ? 'На этот адрес будет отправлен ключ активации и чек' : 'Activation key and receipt will be sent to this address' %></small>
                 </div>
                 
-                <h5 class="mt-4"><%= settings.language === 'ru' ? 'Способ оплаты' : 'Payment Method' %></h5>
+                <h5 class="checkout-payment-title mt-4"><%= settings.language === 'ru' ? 'Способ оплаты' : 'Payment Method' %></h5>
                 <div class="payment-methods">
                   <div class="payment-method-option selected" data-method="digiseller">
                     <div class="d-flex align-items-center">
                       <img src="/assets/images/digiseller-logo.png" alt="Digiseller">
-                      <span><%= settings.language === 'ru' ? 'Digiseller (Карты, ЮMoney, QIWI, WebMoney и др.)' : 'Digiseller (Cards, YooMoney, QIWI, WebMoney, etc.)' %></span>
+                      <span class="checkout-payment-method"><%= settings.language === 'ru' ? 'Digiseller (Карты, ЮMoney, QIWI, WebMoney и др.)' : 'Digiseller (Cards, YooMoney, QIWI, WebMoney, etc.)' %></span>
                     </div>
                   </div>
                 </div>
                 
                 <div class="d-grid gap-2 mt-4">
-                  <button type="submit" class="btn btn-primary btn-lg" id="place-order-btn">
+                  <button type="submit" class="btn btn-primary btn-lg checkout-submit-btn" id="place-order-btn">
                     <%= settings.language === 'ru' ? 'Оформить заказ' : 'Place Order' %>
                   </button>
                 </div>
@@ -132,10 +134,10 @@
       <div class="col-lg-4">
         <div class="card checkout-summary">
           <div class="card-body">
-            <h5><%= settings.language === 'ru' ? 'Сводка заказа' : 'Order Summary' %></h5>
+            <h5 class="checkout-summary-title"><%= settings.language === 'ru' ? 'Сводка заказа' : 'Order Summary' %></h5>
             <div class="d-flex justify-content-between mt-3">
-              <span><%= settings.language === 'ru' ? 'Товары' : 'Items' %></span>
-              <span>
+              <span class="checkout-summary-items"><%= settings.language === 'ru' ? 'Товары' : 'Items' %></span>
+              <span class="checkout-summary-total-value" data-total-usd="<%= total.toFixed(2) %>" data-total-rub="<%= total.toFixed(2) %>">
                 <% if (currency === 'USD') { %>
                   $<%= total.toFixed(2) %>
                 <% } else { %>
@@ -145,7 +147,7 @@
             </div>
             <hr>
             <div class="d-flex justify-content-between">
-              <strong><%= settings.language === 'ru' ? 'Итого' : 'Total' %></strong>
+              <strong class="checkout-summary-total-label"><%= settings.language === 'ru' ? 'Итого' : 'Total' %></strong>
               <strong>
                 <% if (currency === 'USD') { %>
                   $<%= total.toFixed(2) %>
@@ -157,7 +159,7 @@
             
             <div class="form-check mt-3">
               <input class="form-check-input" type="checkbox" id="terms-check" required checked>
-              <label class="form-check-label" for="terms-check">
+              <label class="form-check-label checkout-terms-label" for="terms-check">
                 <%= settings.language === 'ru' ? 'Я согласен с условиями продажи цифровых товаров' : 'I agree to the terms and conditions for digital goods' %>
               </label>
             </div>
@@ -282,6 +284,90 @@
         
         return false;
       });
+
+      function dynamicCheckoutTranslate() {
+        const lang = localStorage.getItem('language') || 'en';
+        if (lang === 'ru') {
+          $('.checkout-title').text('Оформление заказа');
+          $('.checkout-order-title').text('Ваш заказ');
+          $('.checkout-th-product').text('Товар');
+          $('.checkout-th-qty').text('Количество');
+          $('.checkout-th-price').text('Цена');
+          $('.checkout-th-sum').text('Сумма');
+          $('.checkout-email-label').text('Электронная почта *');
+          $('.checkout-email-note').text('На этот адрес будет отправлен ключ активации и чек');
+          $('.checkout-payment-title').text('Способ оплаты');
+          $('.checkout-payment-method').text('Digiseller (Карты, ЮMoney, QIWI, WebMoney и др.)');
+          $('.checkout-submit-btn').text('Оформить заказ');
+          $('.checkout-summary-title').text('Сводка заказа');
+          $('.checkout-summary-items').text('Товары');
+          $('.checkout-summary-total-label').text('Итого');
+          $('.checkout-terms-label').text('Я согласен с условиями продажи цифровых товаров');
+        } else {
+          $('.checkout-title').text('Checkout');
+          $('.checkout-order-title').text('Your Order');
+          $('.checkout-th-product').text('Product');
+          $('.checkout-th-qty').text('Quantity');
+          $('.checkout-th-price').text('Price');
+          $('.checkout-th-sum').text('Subtotal');
+          $('.checkout-email-label').text('Email *');
+          $('.checkout-email-note').text('Activation key and receipt will be sent to this address');
+          $('.checkout-payment-title').text('Payment Method');
+          $('.checkout-payment-method').text('Digiseller (Cards, YooMoney, QIWI, WebMoney, etc.)');
+          $('.checkout-submit-btn').text('Place Order');
+          $('.checkout-summary-title').text('Order Summary');
+          $('.checkout-summary-items').text('Items');
+          $('.checkout-summary-total-label').text('Total');
+          $('.checkout-terms-label').text('I agree to the terms and conditions for digital goods');
+        }
+      }
+
+      $('#lang-en, #lang-ru').on('click', function() {
+        dynamicCheckoutTranslate();
+      });
+
+      dynamicCheckoutTranslate();
+
+      function updateCheckoutPrices() {
+        const lang = localStorage.getItem('language') || 'en';
+        const curr = lang === 'ru' ? 'RUB' : 'USD';
+        const symbol = curr === 'USD' ? '$' : '₽';
+        $('.checkout-item-price').each(function() {
+          const $el = $(this);
+          const price = curr === 'USD' ? $el.data('price-usd') : $el.data('price-rub');
+          const discounted = curr === 'USD' ? $el.data('discounted-usd') : $el.data('discounted-rub');
+          if (discounted && discounted !== '' && discounted !== 'null') {
+            if (curr === 'USD') {
+              $el.html(`<span class="text-muted text-decoration-line-through">$${$el.data('price-usd').toFixed(2)}</span> $${Number(discounted).toFixed(2)}`);
+            } else {
+              $el.html(`<span class="text-muted text-decoration-line-through">${$el.data('price-rub').toFixed(2)} ₽</span> ${Number(discounted).toFixed(2)} ₽`);
+            }
+          } else {
+            if (curr === 'USD') {
+              $el.html(`$${Number(price).toFixed(2)}`);
+            } else {
+              $el.html(`${Number(price).toFixed(2)} ₽`);
+            }
+          }
+        });
+        // Итог
+        $('.checkout-summary-total-value').each(function() {
+          const $el = $(this);
+          const totalUsd = $el.data('total-usd');
+          const totalRub = $el.data('total-rub');
+          if (curr === 'USD') {
+            $el.html(`$${Number(totalUsd).toFixed(2)}`);
+          } else {
+            $el.html(`${Number(totalRub).toFixed(2)} ₽`);
+          }
+        });
+      }
+
+      $('#lang-en, #lang-ru').on('click', function() {
+        updateCheckoutPrices();
+      });
+
+      updateCheckoutPrices();
     });
   </script>
 </body>

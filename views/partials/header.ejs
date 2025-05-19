@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -81,6 +80,8 @@
           
           // Update active language flag
           updateActiveLangFlag();
+          
+          if (window.translateCommonUI) { window.translateCommonUI(); }
         };
         
         // Apply current language on page load
@@ -140,10 +141,10 @@
                           <img src="/assets/images/ru-flag.png" class="language-flag" id="lang-ru" alt="Russian" title="Russian" data-lang="ru">
                         </div>
                       </li>
-                      <li><a href="/" class="<%= activePage === 'home' ? 'active' : '' %>">Home</a></li>
-                      <li><a href="/shop" class="<%= activePage === 'shop' ? 'active' : '' %>">Our Shop</a></li>
-                      <li id="signin-link"><a href="/login">Sign In</a></li>
-                      <li id="register-link"><a href="/register">Register</a></li>
+                      <li><a href="/" class="nav-home <%= activePage === 'home' ? 'active' : '' %>">Home</a></li>
+                      <li><a href="/shop" class="nav-shop <%= activePage === 'shop' ? 'active' : '' %>">Our Shop</a></li>
+                      <li id="signin-link"><a href="/login" class="signin-link">Sign In</a></li>
+                      <li id="register-link"><a href="/register" class="register-link">Register</a></li>
                       <li>
                         <a href="/cart" title="Корзина" style="display: flex; align-items: center; padding: 0 10px;">
                           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -152,9 +153,7 @@
                         </a>
                       </li>
                     </ul>   
-                    <a class='menu-trigger'>
-                        <span>Menu</span>
-                    </a>
+                    <a class='menu-trigger'><span class="menu-text" data-text-en="Menu" data-text-ru="Меню">Menu</span></a>
                     <!-- ***** Menu End ***** -->
                 </nav>
             </div>
