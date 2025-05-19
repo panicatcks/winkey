@@ -860,6 +860,25 @@ function setupRoutes() {
       res.status(500).json({ error: 'Error saving user settings' });
     }
   });
+
+  // Route: POST /api/products/:id/visibility - Update product visibility
+  router.post('/products/:id/visibility', async (req, res) => {
+    try {
+      const productId = req.params.id;
+      const { hidden } = req.body;
+
+      // Update the product's hidden status
+      await pool.query(
+        'UPDATE products SET hidden = $1 WHERE id = $2',
+        [hidden, productId]
+      );
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error updating product visibility:', error);
+      res.status(500).json({ success: false, error: 'Failed to update product visibility' });
+    }
+  });
 }
 
 module.exports = { router, setDependencies }; 

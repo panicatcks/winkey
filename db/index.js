@@ -74,9 +74,6 @@ async function initDb() {
             console.log("    Added updated_at"); 
         }
 
-        await pool.query(`UPDATE products SET price_rub = COALESCE(price_rub, price_usd * 90) WHERE price_usd IS NOT NULL`); 
-        await pool.query(`ALTER TABLE products ALTER COLUMN price_rub SET NOT NULL`);
-
         if (!columns.includes('discounted_price_usd') && columns.includes('discounted_price')) { await pool.query(`ALTER TABLE products RENAME COLUMN discounted_price TO discounted_price_usd`); console.log("    Renamed discounted_price to discounted_price_usd"); }
         if (!columns.includes('discounted_price_rub')) { await pool.query(`ALTER TABLE products ADD COLUMN discounted_price_rub DECIMAL(12, 2)`); console.log("    Added discounted_price_rub"); }
         
@@ -86,6 +83,11 @@ async function initDb() {
         await pool.query(`ALTER TABLE products ALTER COLUMN discounted_price_rub TYPE DECIMAL(12, 2)`);
 
         await pool.query(`ALTER TABLE products ALTER COLUMN price_usd SET NOT NULL`);
+        
+        if (!columns.includes('hidden')) { 
+            await pool.query(`ALTER TABLE products ADD COLUMN hidden BOOLEAN DEFAULT false`); 
+            console.log("    Added hidden column"); 
+        }
         
         console.log("(DB) Columns for 'products' checked/updated.");
     } else {
@@ -98,7 +100,7 @@ async function initDb() {
                 description TEXT,
                 description_ru TEXT,
                 price_usd DECIMAL(12, 2) NOT NULL,
-                price_rub DECIMAL(12, 2) NOT NULL,
+                price_rub DECIMAL(12, 2),
                 discounted_price_usd DECIMAL(12, 2),
                 discounted_price_rub DECIMAL(12, 2),
                 category VARCHAR(100),

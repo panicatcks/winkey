@@ -11,14 +11,16 @@ router.get('/', async (req, res) => {
     // Get trending products (limit to 4)
     const trendingResult = await pool.query(`
       SELECT * FROM products 
-      ORDER BY id DESC
+      WHERE hidden = false 
+      ORDER BY created_at DESC
       LIMIT 4
     `);
     
     // Get most played products (limit to 6)
     const mostPlayedResult = await pool.query(`
       SELECT * FROM products 
-      ORDER BY id DESC
+      WHERE hidden = false 
+      ORDER BY created_at DESC
       LIMIT 6 OFFSET 4
     `);
     
@@ -54,21 +56,25 @@ router.get('/', async (req, res) => {
 router.get('/shop', async (req, res) => {
   try {
     const searchKeyword = req.query.searchKeyword;
-    let query = 'SELECT * FROM products';
+    let query;
     let params = [];
 
     if (searchKeyword) {
       query = `
         SELECT * FROM products 
-        WHERE name ILIKE $1 
-        OR name_ru ILIKE $1 
-        OR description ILIKE $1 
-        OR description_ru ILIKE $1
+        WHERE hidden = false AND (
+          name ILIKE $1 
+          OR name_ru ILIKE $1 
+          OR description ILIKE $1 
+          OR description_ru ILIKE $1
+        )
+        ORDER BY id
       `;
       params = [`%${searchKeyword}%`];
+    } else {
+      query = 'SELECT * FROM products WHERE hidden = false ORDER BY id';
     }
 
-    query += ' ORDER BY id';
     const result = await pool.query(query, params);
 
     res.render('shop', {
@@ -188,9 +194,9 @@ router.get('/checkout', async (req, res) => {
     } else if (req.session.cart && req.session.cart.length > 0) {
       const productIds = req.session.cart.map(item => item.product_id);
       const productsResult = await pool.query(`
-        SELECT id, name, price_usd, price_rub, discounted_price_usd, discounted_price_rub, image_url 
-        FROM products 
-        WHERE id = ANY($1)
+        SELECT * FROM products 
+        WHERE hidden = false 
+        AND id = ANY($1)
       `, [productIds]);
       
       const productMap = new Map(productsResult.rows.map(p => [p.id, p]));
@@ -272,9 +278,9 @@ router.get('/cart', async (req, res) => {
       
       if (productIds.length > 0) {
         const result = await pool.query(`
-          SELECT id as product_id, name, price_usd, price_rub, image_url
-          FROM products
-          WHERE id = ANY($1)
+          SELECT * FROM products 
+          WHERE hidden = false 
+          AND id = ANY($1)
         `, [productIds]);
         
         cartItems = result.rows.map(product => {
