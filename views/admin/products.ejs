@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="/assets/css/owl.css">
   <link rel="stylesheet" href="/assets/css/animate.css">
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+  <link rel="stylesheet" href="/vendor/datatables/dataTables.bootstrap4.min.css">
   
   <style>
     .admin-container {
@@ -133,6 +134,15 @@
         <div class="col-lg-9 admin-content">
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h4>Product Management</h4>
+            <!-- Добавляем поле поиска -->
+            <div class="input-group" style="width:300px;">
+              <input type="text" id="productSearch" class="form-control" placeholder="Search by ID...">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="$('#productSearch').val(''); $('#productsTable').DataTable().search('').draw();">
+                  <i class="fa fa-times"></i>
+                </button>
+              </div>
+            </div>
             <button class="btn btn-primary" id="addProductBtn">
               <i class="fa fa-plus"></i> Add New Product
             </button>
@@ -143,6 +153,7 @@
               <thead>
                 <tr>
                   <th width="80">Image</th>
+                  <th>ID</th>
                   <th>Name</th>
                   <th>Category</th>
                   <th>Price</th>
@@ -156,6 +167,7 @@
                   <td>
                     <img src="https://graph.digiseller.ru/img.ashx?id_d=<%= product.id %>&maxlength=60" alt="<%= product.name %>" class="product-img-preview">
                   </td>
+                  <td><%= product.id %></td>
                   <td data-name-en="<%= product.name %>" data-name-ru="<%= product.name_ru || product.name %>"><%= product.name %></td>
                   <td><%= product.category %></td>
                   <td class="price-cell" 
@@ -390,25 +402,53 @@
   <!-- Scripts -->
   <script src="/vendor/jquery/jquery.min.js"></script>
   <script src="/vendor/bootstrap/js/bootstrap.min.js"></script>
+  <script src="/vendor/datatables/jquery.dataTables.min.js"></script>
+  <script src="/vendor/datatables/dataTables.bootstrap4.min.js"></script>
   <script src="/assets/js/isotope.min.js"></script>
   <script src="/assets/js/owl-carousel.js"></script>
   <script src="/assets/js/counter.js"></script> 
   <script src="/assets/js/custom.js"></script>
   <script>
     $(document).ready(function() {
-      // Simplest possible approach to handle the modal
-      $('#addProductBtn').on('click', function(e) {
-        e.preventDefault();
-        try {
-          // Try Bootstrap modal method first
-          $('#addProductModal').modal('show');
-        } catch (err) {
-          // Fallback to simple jQuery show if Bootstrap modal fails
-          $('#addProductModal').show();
-          $('body').addClass('modal-open');
+      // Инициализация таблицы (только один раз!)
+      var table = $('#productsTable').DataTable({
+        pageLength: 25,
+        responsive: true,
+        dom: 'rt<"bottom"lip>',
+        order: [[1, 'asc']],
+        columnDefs: [{
+          targets: 1,
+          searchable: true
+        }],
+        language: {
+          lengthMenu: "Show _MENU_ entries",
+          info: "Showing _START_ to _END_ of _TOTAL_ entries",
+          paginate: {
+            first: "First",
+            last: "Last",
+            next: "Next",
+            previous: "Previous"
+          }
         }
       });
-      
+
+      // Обработчик поиска по ID
+      $('#productSearch').on('keyup', function() {
+        table.column(1).search(this.value).draw();
+      });
+
+      // Очистка поиска
+      $('#productSearch').siblings('.input-group-append').find('button').on('click', function() {
+        $('#productSearch').val('');
+        table.column(1).search('').draw();
+      });
+
+      // Остальные обработчики событий
+      $('#addProductBtn').on('click', function(e) {
+        e.preventDefault();
+        $('#addProductModal').modal('show');
+      });
+
       // Simple handler for closing modals
       $('.close, .btn-secondary[data-dismiss="modal"]').on('click', function() {
         try {
@@ -530,7 +570,8 @@
           }.bind(this)
         });
       });
+      
     });
   </script>
 </body>
-</html> 
+</html>
